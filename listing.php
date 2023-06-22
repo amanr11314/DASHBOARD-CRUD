@@ -1,7 +1,19 @@
 <?php
 include "db_conn.php";
-
-
+// Sorting column and order
+$sortColumn = $_GET['sortColumn'] ?? "id"; // Replace with the actual column name you want to sort
+function getSortOrder()
+{
+    if (isset($_GET['sortOrder']) && !empty($_GET['sortOrder'])) {
+        return $_GET['sortOrder'];
+    }
+    return -1;
+}
+function getOrder($order)
+{
+    if ($order > 0) return 'DESC';
+    return 'ASC';
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -36,7 +48,7 @@ include "db_conn.php";
                 <tr>
                     <!-- <th class="text-center" scope="col">S.N</th> -->
                     <th class="text-center" scope="col">
-                        <a href="<?php echo "listing.php?sortColumn=id&sortOrder=" . $_GET['sortOrder']; ?>">S.N</a>
+                        <a href="<?php echo "listing.php?sortColumn=id&sortOrder=" . getSortOrder() * -1; ?>">S.N</a>
                     </th>
                     <th class="text-center" scope="col">Name</th>
                     <th class="text-center" scope="col">Email</th>
@@ -47,14 +59,12 @@ include "db_conn.php";
             </thead>
 
             <?php
-            // Sorting column and order
-            $sortColumn = $_GET['sortColumn'] ?? "id"; // Replace with the actual column name you want to sort
-            $sortOrder =  $_GET['sortOrder'] ?? "DESC"; // Set the sorting order (ASC for ascending, DESC for descending)
+
 
             // Display employees in table 
             // $sql = "SELECT id,username,email, gender, image FROM employee";
             // $result = $conn->query($sql);
-            $sql = "SELECT * FROM employee ORDER BY $sortColumn $sortOrder";
+            $sql = "SELECT * FROM employee ORDER BY $sortColumn " . getOrder(getSortOrder());
             $result = $conn->query($sql);
             if ($result->num_rows > 0) {
                 while ($data = $result->fetch_assoc()) {
