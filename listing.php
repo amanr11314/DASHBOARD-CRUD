@@ -48,11 +48,22 @@ function getOrder($order)
                 <tr>
                     <!-- <th class="text-center" scope="col">S.N</th> -->
                     <th class="text-center" scope="col">
-                        <a href="<?php echo "listing.php?sortColumn=id&sortOrder=" . getSortOrder() * -1; ?>">S.N</a>
+                        <a class="mr-3 badge badge-secondary action-btn"
+                            href="<?php echo "listing.php?sortColumn=id&sortOrder=" . getSortOrder() * -1; ?>">S.N</a>
                     </th>
-                    <th class="text-center" scope="col">Name</th>
-                    <th class="text-center" scope="col">Email</th>
-                    <th class="text-center" scope="col">Gender</th>
+                    <!-- <th class="text-center" scope="col">Name</th> -->
+                    <th class="text-center" scope="col">
+                        <a class="mr-3 badge badge-secondary action-btn"
+                            href="<?php echo "listing.php?sortColumn=username&sortOrder=" . getSortOrder() * -1; ?>">Name</a>
+                    </th>
+                    <!-- <th class="text-center" scope="col">Email</th> -->
+                    <th class="text-center" scope="col"><a class="mr-3 badge badge-secondary action-btn"
+                            href="<?php echo "listing.php?sortColumn=email&sortOrder=" . getSortOrder() * -1; ?>">Email</a>
+                    </th>
+                    <!-- <th class="text-center" scope="col">Gender</th> -->
+                    <th class="text-center" scope="col"><a class="mr-3 badge badge-secondary action-btn"
+                            href="<?php echo "listing.php?sortColumn=gender&sortOrder=" . getSortOrder() * -1; ?>">Gender</a>
+                    </th>
                     <th class="text-center" scope="col">Image</th>
                     <th class="text-center" scope="col" colspan="2">Action</th>
                 </tr>
