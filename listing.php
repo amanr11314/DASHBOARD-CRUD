@@ -1,5 +1,7 @@
 <?php
-include "db_conn.php"
+include "db_conn.php";
+
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -10,6 +12,9 @@ include "db_conn.php"
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
         integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css"
+        integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+
     <title>Document</title>
     <style>
     .action-btn {
@@ -22,14 +27,17 @@ include "db_conn.php"
 
     <div>
         <div class="px-4 my-4 d-flex justify-content-center btn-group" role="group" aria-label="Basic example">
-            <a href="form.php" class="mr-3 badge badge-dark action-btn">Add</a>
+            <a href="add.php" class="mr-3 badge badge-dark action-btn">Add</a>
         </div>
 
 
         <table class="table table-striped table-dark">
             <thead>
                 <tr>
-                    <th class="text-center" scope="col">S.N</th>
+                    <!-- <th class="text-center" scope="col">S.N</th> -->
+                    <th class="text-center" scope="col">
+                        <a href="<?php echo "listing.php?sortColumn=id&sortOrder=" . $_GET['sortOrder']; ?>">S.N</a>
+                    </th>
                     <th class="text-center" scope="col">Name</th>
                     <th class="text-center" scope="col">Email</th>
                     <th class="text-center" scope="col">Gender</th>
@@ -39,9 +47,14 @@ include "db_conn.php"
             </thead>
 
             <?php
+            // Sorting column and order
+            $sortColumn = $_GET['sortColumn'] ?? "id"; // Replace with the actual column name you want to sort
+            $sortOrder =  $_GET['sortOrder'] ?? "DESC"; // Set the sorting order (ASC for ascending, DESC for descending)
 
             // Display employees in table 
-            $sql = "SELECT id,username,email, gender, image FROM employee";
+            // $sql = "SELECT id,username,email, gender, image FROM employee";
+            // $result = $conn->query($sql);
+            $sql = "SELECT * FROM employee ORDER BY $sortColumn $sortOrder";
             $result = $conn->query($sql);
             if ($result->num_rows > 0) {
                 while ($data = $result->fetch_assoc()) {
@@ -53,25 +66,27 @@ include "db_conn.php"
                     <td class="text-center"><?php echo $data['email']; ?> </td>
                     <td class="text-center"><?php echo ucfirst($data['gender']); ?> </td>
                     <td class="text-center">
+                        <?php if (!empty($data['image'])) { ?>
                         <img src="<?php echo "./uploads/" . $data['image'] ?>" alt="Image"
                             style="width: 100px; height: 100px;">
+                        <?php } else { ?>
+                        -
+                        <?php } ?>
                     </td>
                     <td class="text-center">
                         <div class="btn-group" role="group" aria-label="Basic example">
-                            <a href="form.php?id=<?php echo $data['id']; ?>"
+                            <a href="edit.php?id=<?php echo $data['id']; ?>"
                                 class="mr-3 badge badge-primary action-btn">Edit</a>
                             <a href="delete.php?id=<?php echo $data['id']; ?>"
                                 class="mr-3 badge badge-danger action-btn">Delete</a>
                         </div>
                     </td>
-
-
                 </tr>
+                <?php
+                }
+                    ?>
             </tbody>
 
-            <?php
-                }
-                ?>
         </table>
         <?php
             } else {

@@ -41,7 +41,6 @@ include "db_conn.php";
         }
     }
 
-    // if (isset($_POST["delete"])) {
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // The request is using the POST method
         $id = $_POST["id"];
@@ -122,9 +121,6 @@ include "db_conn.php";
                     <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#exampleModal">
                         Delete
                     </button>
-                    <!-- <button type="submit" name="delete" class="btn btn-danger" style="width: 100px;">
-                        Delete
-                    </button> -->
                 </div>
             </div>
         </form>
