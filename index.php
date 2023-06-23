@@ -79,9 +79,11 @@ if ($_GET['action'] === 'delete' && isset($_GET['id'])) {
                         <a class="navbar-brand" href="#">Dashboard</a>
 
                         <!-- Search bar -->
-                        <form class="d-flex ms-auto">
-                            <input class="form-control mx-2" type="search" placeholder="Search" aria-label="Search">
-                            <button class="btn btn-outline-primary" type="submit">Search</button>
+                        <form method="POST" name="search-form"
+                            action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);  ?>" class="d-flex ms-auto">
+                            <input class="form-control mx-2" name="query" value="<?php echo $_POST['query']; ?>"
+                                type="search" placeholder="Search" aria-label="Search">
+                            <button class="btn btn-outline-primary" name="search" type="submit">Search</button>
                         </form>
 
                         <div class="dropdown mr-4 ">
@@ -133,8 +135,18 @@ if ($_GET['action'] === 'delete' && isset($_GET['id'])) {
                 <?php
 
 
+
+
                 // Display employees in table 
-                $sql = "SELECT * FROM employee ORDER BY $sortColumn " . getOrder(getSortOrder());
+                $sql = "SELECT * FROM employee ";
+                if (isset($_POST["search"])) {
+                    $query = $_POST['query'];
+                    $query = trim($query);
+                    $query = stripslashes($query);
+                    $query = htmlspecialchars($query);
+                    $sql = $sql . " WHERE concat( `username`, `email` ) LIKE '%$query%'";
+                }
+                $sql = $sql . " ORDER BY $sortColumn " . getOrder(getSortOrder());
                 $result = $conn->query($sql);
                 if ($result->num_rows > 0) {
                     while ($data = $result->fetch_assoc()) {
@@ -197,7 +209,6 @@ if ($_GET['action'] === 'delete' && isset($_GET['id'])) {
                     echo "0 results";
                 }
 ?>
-    <!-- </div> -->
     <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
         integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous">
     </script>
