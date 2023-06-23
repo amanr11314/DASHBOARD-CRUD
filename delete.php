@@ -8,18 +8,17 @@ include "db_conn.php";
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
-        integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-    <title>Document</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <title>Delete User</title>
     <style>
-    .action-btn {
-        font-size: 1em;
-    }
+        .action-btn {
+            font-size: 1em;
+        }
     </style>
     <script>
-    function confirmDelete() {
-        document.getElementById("deleteDataForm").submit();
-    }
+        function confirmDelete() {
+            document.getElementById("deleteDataForm").submit();
+        }
     </script>
 </head>
 
@@ -71,7 +70,7 @@ include "db_conn.php";
             $toastMsg = $e->getMessage();
             echo $toastMsg;
         }
-        header("Location: listing.php");
+        header("Location: index.php");
         exit(); // Ensure that no further code is executed after the redirect
 
     }
@@ -83,15 +82,13 @@ include "db_conn.php";
             <div class="form-group row">
                 <label for="inputName" class="col-sm-2 col-form-label">Name</label>
                 <div class="col-sm-10">
-                    <input type="text" disabled class="form-control" id="inputName" name="username"
-                        placeholder="User name" value="<?php echo $_POST['username'] ?>">
+                    <input type="text" disabled class="form-control" id="inputName" name="username" placeholder="User name" value="<?php echo $_POST['username'] ?>">
                 </div>
             </div>
             <div class="form-group row">
                 <label for="inputEmail3" class="col-sm-2 col-form-label">Email</label>
                 <div class="col-sm-10">
-                    <input disabled type="email" class="form-control" id="inputEmail3" name="email" placeholder="Email"
-                        value="<?php echo $_POST['email'] ?>">
+                    <input disabled type="email" class="form-control" id="inputEmail3" name="email" placeholder="Email" value="<?php echo $_POST['email'] ?>">
                 </div>
             </div>
             <fieldset disabled class="form-group">
@@ -99,15 +96,13 @@ include "db_conn.php";
                     <legend class="col-form-label col-sm-2 pt-0">Gender</legend>
                     <div class="col-sm-10">
                         <div class="form-check">
-                            <input class="form-check-input" type="radio" name="gender" id="gridRadios1" value="male"
-                                <?php if (isset($_POST['gender']) && $_POST['gender'] == "male") echo "checked"; ?>>
+                            <input class="form-check-input" type="radio" name="gender" id="gridRadios1" value="male" <?php if (isset($_POST['gender']) && $_POST['gender'] == "male") echo "checked"; ?>>
                             <label class="form-check-label" for="gridRadios1">
                                 Male
                             </label>
                         </div>
                         <div class="form-check">
-                            <input class="form-check-input" type="radio" name="gender" id="gridRadios2" value="female"
-                                <?php if (isset($_POST['gender']) && $_POST['gender'] == "female") echo "checked"; ?>>
+                            <input class="form-check-input" type="radio" name="gender" id="gridRadios2" value="female" <?php if (isset($_POST['gender']) && $_POST['gender'] == "female") echo "checked"; ?>>
                             <label class="form-check-label" for="gridRadios2">
                                 Female
                             </label>
@@ -126,8 +121,7 @@ include "db_conn.php";
         </form>
 
         <!-- Modal -->
-        <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-            aria-hidden="true">
+        <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -153,14 +147,11 @@ include "db_conn.php";
 
 
 
-    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
-        integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous">
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
-        integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous">
     </script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
-        integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous">
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous">
     </script>
 
 </body>

@@ -1,4 +1,10 @@
 <?php
+// Start the session
+session_start();
+if (empty($_COOKIE['login']) || $_COOKIE['login'] == '') {
+    header("Location: login.php");
+    die();
+}
 include "db_conn.php";
 ?>
 <!DOCTYPE html>
@@ -10,7 +16,7 @@ include "db_conn.php";
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
         integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-    <title>Document</title>
+    <title>Edit User</title>
     <style>
     .action-btn {
         font-size: 1em;
@@ -76,7 +82,7 @@ include "db_conn.php";
                     }
 
                     if ($conn->query($sql)) {
-                        header('Location:listing.php');
+                        header('Location:index.php');
                     }
                     echo 'successfully save : )';
                 } else {
@@ -88,7 +94,7 @@ include "db_conn.php";
                 echo "<br>" . $sql;
                 if ($status) {
                     echo "<br>success";
-                    header("Location: listing.php");
+                    header("Location: index.php");
                 } else {
                     echo "<br>something went wrong";
                 }

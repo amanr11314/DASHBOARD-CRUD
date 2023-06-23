@@ -10,7 +10,7 @@ include "db_conn.php";
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
         integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-    <title>Document</title>
+    <title>Add new user</title>
     <style>
     .action-btn {
         font-size: 1em;
@@ -21,6 +21,7 @@ include "db_conn.php";
         color: red;
     }
     </style>
+
 </head>
 
 <body>
@@ -59,7 +60,7 @@ include "db_conn.php";
                     }
 
                     if ($conn->query($sql)) {
-                        header('Location:listing.php');
+                        header('Location:index.php');
                     }
                     echo 'successfully save : )';
                 } else {
@@ -74,7 +75,7 @@ include "db_conn.php";
                     echo "<br>" . $ex->getMessage();
                 }
                 if ($conn->query($sql)) {
-                    header('Location:listing.php');
+                    header('Location:index.php');
                 }
                 echo 'successfully save : )';
             }
@@ -130,9 +131,10 @@ include "db_conn.php";
             <div class="form-group row">
                 <div class="input-group mb-3">
                     <div class="col-sm-10">
-                        <input id="file_input" name='files' type="file" class="custom-file-input">
-                        <label class="custom-file-label" for="inputGroupFile02"
-                            aria-describedby="inputGroupFileAddon02"><?php echo $_FILES['files']['tmp_name'] ?? 'Choose files'; ?></label>
+                        <input id="inputGroupFile01" aria-describedby="inputGroupFileAddon01" name='files' type="file"
+                            class="custom-file-input">
+                        <label class="custom-file-label" for="inputGroupFile01">Choose file</label>
+
                     </div>
                 </div>
             </div>
@@ -147,9 +149,6 @@ include "db_conn.php";
         </form>
 
     </div>
-
-
-
 
 
     <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
