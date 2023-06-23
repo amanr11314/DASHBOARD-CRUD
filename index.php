@@ -1,5 +1,6 @@
 <?php
 // Start the session
+//TODO:: WORK ON PAGINATION https://codepen.io/paulobrien/pen/LBrMxa
 session_start();
 if (empty($_COOKIE['login']) || $_COOKIE['login'] == '') {
     header("Location: login.php");
@@ -65,6 +66,10 @@ if ($_GET['action'] === 'delete' && isset($_GET['id'])) {
     .action-btn {
         font-size: 1em;
     }
+
+    .table-body {
+        overflow-y: scroll;
+    }
     </style>
 
 </head>
@@ -106,8 +111,7 @@ if ($_GET['action'] === 'delete' && isset($_GET['id'])) {
         </div>
     </header>
 
-
-    <div class="table-responsive">
+    <div class="table-body">
 
         <table class="table table-striped table-dark">
             <thead>
@@ -228,6 +232,11 @@ if ($_GET['action'] === 'delete' && isset($_GET['id'])) {
 
     </table>
     </div>
+    <footer class="navbar-fixed-bottom mt-auto py-3 bg-dark">
+        <div class="container">
+            <span class="text-light">Place sticky footer content here.</span>
+        </div>
+    </footer>
     <?php
                 } else {
                     echo "0 results";
