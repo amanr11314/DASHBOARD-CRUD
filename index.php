@@ -9,6 +9,7 @@ if (empty($_COOKIE['login']) || $_COOKIE['login'] == '') {
 include "db_conn.php";
 // Sorting column and order
 $sortColumn = $_GET['sortColumn'] ?? "id"; // Replace with the actual column name you want to sort
+$limit = $_GET['limit'] ?? 5;
 function getSortOrder()
 {
     if (isset($_GET['sortOrder']) && !empty($_GET['sortOrder'])) {
@@ -151,6 +152,7 @@ if ($_GET['action'] === 'delete' && isset($_GET['id'])) {
                     $sql = $sql . " WHERE concat( `username`, `email` ) LIKE '%$query%'";
                 }
                 $sql = $sql . " ORDER BY $sortColumn " . getOrder(getSortOrder());
+                $sql = $sql . " LIMIT $limit";
                 $result = $conn->query($sql);
                 if ($result->num_rows > 0) {
                     while ($data = $result->fetch_assoc()) {
@@ -217,9 +219,6 @@ if ($_GET['action'] === 'delete' && isset($_GET['id'])) {
                 <div class="modal-body">
                     <div class="card" style="width: 24rem;">
                         <img class="card-img-top" src="<?php echo "./uploads/" . $data['image'] ?>">
-                        <!-- <div class="card-body">
-    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-  </div> -->
                     </div>
                 </div>
             </div>
@@ -233,8 +232,18 @@ if ($_GET['action'] === 'delete' && isset($_GET['id'])) {
     </table>
     </div>
     <footer class="navbar-fixed-bottom mt-auto py-3 bg-dark">
-        <div class="container">
-            <span class="text-light">Place sticky footer content here.</span>
+        <div class="d-flex flex-row-reverse mr-4">
+            <!-- Default dropup button -->
+            <div class="btn-group dropup">
+                <a role="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
+                    aria-expanded="false">
+                    Row Per Page
+                </a>
+                <div class="dropdown-menu dropdown-menu-right">
+                    <a class="dropdown-item" href="index.php?limit=5">5</a>
+                    <a class="dropdown-item" href="index.php?limit=10">10</a>
+                </div>
+            </div>
         </div>
     </footer>
     <?php
