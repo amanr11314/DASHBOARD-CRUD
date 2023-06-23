@@ -158,8 +158,10 @@ if ($_GET['action'] === 'delete' && isset($_GET['id'])) {
                     <td class="text-center"><?php echo ucfirst($data['gender']); ?> </td>
                     <td class="text-center">
                         <?php if (!empty($data['image'])) { ?>
-                        <img src="<?php echo "./uploads/" . $data['image'] ?>" alt="Image"
-                            style="width: 100px; height: 100px;">
+                        <button type="button" class="" data-toggle="modal"
+                            data-target="#myPreviewModal<?= $data['id'] ?>">
+                            <img src="<?php echo "./uploads/" . $data['image'] ?>" alt="Image"
+                                style="width: 100px; height: 100px;"></button>
                         <?php } else { ?>
                         -
                         <?php } ?>
@@ -174,7 +176,7 @@ if ($_GET['action'] === 'delete' && isset($_GET['id'])) {
     </div>
     </td>
     </tr>
-    <!-- Modal -->
+    <!-- Delete Confirmation Modal -->
     <div class="modal fade" id="myModal<?= $data['id'] ?>" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
         aria-hidden="true">
         <div class="modal-dialog" role="document">
@@ -193,6 +195,28 @@ if ($_GET['action'] === 'delete' && isset($_GET['id'])) {
                     <a href="<?php echo "index.php?action=delete&id=" . $data['id']; ?>"
                         class="btn btn-danger">Delete</a>
 
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Image Preview Modal -->
+    <div class="modal fade" id="myPreviewModal<?= $data['id'] ?>" tabindex="-1" role="dialog"
+        aria-labelledby="myPreviewModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Image Preview User</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="card" style="width: 24rem;">
+                        <img class="card-img-top" src="<?php echo "./uploads/" . $data['image'] ?>">
+                        <!-- <div class="card-body">
+    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+  </div> -->
+                    </div>
                 </div>
             </div>
         </div>
