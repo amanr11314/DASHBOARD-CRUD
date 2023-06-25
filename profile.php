@@ -51,6 +51,14 @@ include "db_conn.php";
                             <div class="ml-4 mt-5 d-flex flex-column" style="width: 150px;">
                                 <img src="<?php echo "./uploads/" . $image ?>" alt="Generic placeholder image"
                                     class="img-fluid img-thumbnail mt-4 mb-2" style="width: 150px; z-index: 1">
+                                    <?php if (!empty($image)) { ?>
+                                        <img src="<?php echo "./uploads/" . $image ?>" alt="Generic placeholder image"
+                                    class="img-fluid img-thumbnail mt-4 mb-2" style="width: 150px; z-index: 1">
+                        
+                        <?php } else { ?>
+                            <img src="./uploads/default_user.png" alt="Generic placeholder image"
+                                    class="img-fluid img-thumbnail mt-4 mb-2" style="width: 150px; z-index: 1">
+                        <?php } ?>
                                 <a href="edit.php?id=<?php echo $row['id']; ?>" role="button" type="button"
                                     class="btn btn-outline-dark" data-mdb-ripple-color="dark" style="z-index: 1;">
                                     Edit profile
