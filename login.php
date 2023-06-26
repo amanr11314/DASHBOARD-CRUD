@@ -101,13 +101,19 @@ if (isset($_POST["login"])) {
                 setcookie($password, '', time() - 1000);
                 setcookie($password, '', time() - 1000, '/');
 
-                // setcookie('total', $total, time() + 60 * 60 * 24 * 1, '/');
-                setcookie('login', $id, time() + 60 * 60 * 24 * 1, '/');
-                setcookie('name', $row['username'], time() + 60 * 60 * 24 * 1, '/');
-                setcookie('email', $row['email'], time() + 60 * 60 * 24 * 1, '/');
-                setcookie('gender', $row['gender'], time() + 60 * 60 * 24 * 1, '/');
-                setcookie('image', $row['image'], time() + 60 * 60 * 24 * 1, '/');
-                header('Location:index.php');
+                if ($row['status'] == 0) {
+                    header('Location:email_verification.php?status=0');
+                    die();
+                } else {
+
+                    // setcookie('total', $total, time() + 60 * 60 * 24 * 1, '/');
+                    setcookie('login', $id, time() + 60 * 60 * 24 * 1, '/');
+                    setcookie('name', $row['username'], time() + 60 * 60 * 24 * 1, '/');
+                    setcookie('email', $row['email'], time() + 60 * 60 * 24 * 1, '/');
+                    setcookie('gender', $row['gender'], time() + 60 * 60 * 24 * 1, '/');
+                    setcookie('image', $row['image'], time() + 60 * 60 * 24 * 1, '/');
+                    header('Location:index.php');
+                }
             } else {
                 $errors['msg'] = "Incorrect password";
             }

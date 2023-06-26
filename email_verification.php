@@ -33,6 +33,8 @@ if ($_GET['key'] && $_GET['token']) {
     } else {
         $msg = "This email has been not registered with us";
     }
+} else if ($_GET['status'] == 0) {
+    $msg = "Please verify your email first";
 } else {
     $msg = "Danger! Your something goes to wrong.";
 }
