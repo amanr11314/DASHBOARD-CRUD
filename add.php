@@ -1,4 +1,10 @@
 <?php
+// Start the session
+// session_start();
+// if (!(empty($_COOKIE['login']) || $_COOKIE['login'] == '')) {
+//     header("Location: index.php");
+//     die();
+// }
 include "db_conn.php";
 ?>
 <!DOCTYPE html>
@@ -27,65 +33,68 @@ include "db_conn.php";
 <body>
     <?php
 
-    if (isset($_POST["submit"])) {
-        include "db_conn.php";
-        $username = $_POST['username'];
-        $email = $_POST['email'];
-        $gender = $_POST['gender'];
+if (isset($_POST["add-intern"])) {
+    include "db_conn.php";
+    $username = $_POST['username'];
+    $email = $_POST['email'];
+    $gender = $_POST['gender'];
 
-        include "validation.php";
-        include "backend_validation.php";
+    include "validation.php";
+    // include "backend_validation.php";
 
-        if (empty($errors)) {
-            $name = $_FILES["files"]["name"];
-            $tmp_name = $_FILES['files']['tmp_name'];
-            if (!empty($tmp_name)) {
-                $uploadFolder = './uploads';
-                $extension = pathinfo($name, PATHINFO_EXTENSION);
-                $filename = $username . "_" . $email . "." . $extension;
-                $FileDest = $uploadFolder . "/" . $filename;
+    if (empty($errors)) {
+        $name = $_FILES["files"]["name"];
+        $tmp_name = $_FILES['files']['tmp_name'];
+        $mentor = $_COOKIE['login'];
+        if (!empty($tmp_name)) {
+            $uploadFolder = './uploads';
+            $extension = pathinfo($name, PATHINFO_EXTENSION);
+            $filename = $username . "_" . $email . "- " . $mentor . "." . $extension;
+            $FileDest = $uploadFolder . "/" . $filename;
 
-                if ($name && $_FILES['files']['size'] == 0) {
-                    echo 'File size is too big';
-                    exit();
-                }
+            if ($name && $_FILES['files']['size'] == 0) {
+                echo 'File size is too big';
+                exit();
+            }
 
-                if (move_uploaded_file($tmp_name, $FileDest)) {
+            if (move_uploaded_file($tmp_name, $FileDest)) {
 
-                    // Insert into DB
-                    try {
-                        $sql = "INSERT INTO employee(username,email,gender, image )VALUES('$username','$email','$gender','$filename')";
-                    } catch (Exception $ex) {
-                        echo "<br>" . $ex->getMessage();
-                    }
-
-                    if ($conn->query($sql)) {
-                        header('Location:index.php');
-                    }
-                    echo 'successfully save : )';
-                } else {
-                    echo 'Error uploading';
-                }
-            } else {
                 // Insert into DB
-                $testuser = $_POST['username'];
                 try {
-                    $sql = "INSERT INTO employee(username,email,gender )VALUES('$testuser','$email','$gender')";
+                    $sql = "INSERT INTO interns(username,email,gender,image, mentor)VALUES('$testuser','$email','$gender','$filename', '$mentor')";
+                    print_r($sql);
                 } catch (Exception $ex) {
                     echo "<br>" . $ex->getMessage();
                 }
+
                 if ($conn->query($sql)) {
                     header('Location:index.php');
                 }
                 echo 'successfully save : )';
+            } else {
+                echo 'Error uploading';
             }
+        } else {
+            // Insert into DB
+            $testuser = $_POST['username'];
+            try {
+                $sql = "INSERT INTO interns(username,email,gender,mentor)VALUES('$testuser','$email','$gender','$mentor')";
+                print_r($sql);
+            } catch (Exception $ex) {
+                echo "<br>" . $ex->getMessage();
+            }
+            if ($conn->query($sql)) {
+                header('Location:index.php');
+            }
+            echo 'successfully save : )';
         }
     }
-    ?>
+}
+?>
     <div class="container mt-4">
 
         <form method="POST" enctype="multipart/form-data"
-            action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);  ?>">
+            action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
 
             <label for="id" class="text-danger col-form-label">* Required field</label>
             <input hidden type="text" name="id" value=<?php echo $_POST['id']; ?>>
@@ -111,15 +120,19 @@ include "db_conn.php";
                     <legend class="control-label col-form-label col-sm-2 pt-0">Gender</legend>
                     <div class="col-sm-10">
                         <div class="form-check">
-                            <input class="form-check-input" type="radio" name="gender" id="gridRadios1" value="male"
-                                <?php if (isset($_POST['gender']) && $_POST['gender'] == "male") echo "checked"; ?>>
+                            <input class="form-check-input" type="radio" name="gender" id="gridRadios1" value="male" <?php if (isset($_POST['gender']) && $_POST['gender'] == "male") {
+    echo "checked";
+}
+?>>
                             <label class="form-check-label" for="gridRadios1">
                                 Male
                             </label>
                         </div>
                         <div class="form-check">
-                            <input class="form-check-input" type="radio" name="gender" id="gridRadios2" value="female"
-                                <?php if (isset($_POST['gender']) && $_POST['gender'] == "female") echo "checked"; ?>>
+                            <input class="form-check-input" type="radio" name="gender" id="gridRadios2" value="female" <?php if (isset($_POST['gender']) && $_POST['gender'] == "female") {
+    echo "checked";
+}
+?>>
                             <label class="form-check-label" for="gridRadios2">
                                 Female
                             </label>
@@ -140,8 +153,8 @@ include "db_conn.php";
             </div>
 
             <div class="form-group row">
-                <div class="col-sm-10">
-                    <button type="submit" name="submit" class="btn btn-primary" style="width: 100px;">
+                <div class="col-sm-10 text-center">
+                    <button type="submit" name="add-intern" class="btn btn-primary" style="width: 200px;">
                         Add
                     </button>
                 </div>

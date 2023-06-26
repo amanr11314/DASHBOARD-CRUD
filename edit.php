@@ -31,11 +31,27 @@ include "db_conn.php";
 
 <body>
     <?php
-    include "db_conn.php";
-    // populate values from db
-    if (isset($_GET["id"])) {
+include "db_conn.php";
+// populate values from db
+if (isset($_GET["id"])) {
 
+    // employee
+    if ($_GET['id'] == $_COOKIE['login']) {
         $sql = "SELECT * FROM employee WHERE id=" . $_GET['id'];
+        $result = $conn->query($sql);
+        if ($result->num_rows > 0) {
+            $row = $result->fetch_assoc();
+            $id = $row['id'];
+            $_POST["id"] = $row['id'];
+            $_POST["isSelf"] = $_GET['self'];
+            $_POST["username"] = $row['username'];
+            $_POST["email"] = $row['email'];
+            $_POST["gender"] = $row['gender'];
+            $_POST["image"] = $row['image'];
+        }
+    } else {
+        // intern
+        $sql = "SELECT * FROM interns WHERE id=" . $_GET['id'];
         $result = $conn->query($sql);
         if ($result->num_rows > 0) {
             $row = $result->fetch_assoc();
@@ -48,60 +64,72 @@ include "db_conn.php";
         }
     }
 
-    $errors = array();
+}
 
-    if (isset($_POST["submit"])) {
-        $id = $_POST["id"];
-        $email = $_POST["email"];
-        $username = $_POST["username"];
-        $gender = $_POST["gender"];
+$errors = array();
 
-        include "validation.php";
+if (isset($_POST["submit"])) {
+    $id = $_POST["id"];
+    $email = $_POST["email"];
+    $username = $_POST["username"];
+    $gender = $_POST["gender"];
+    $self = $_POST['isSelf'];
 
-        if (empty($errors)) {
-            $name = $_FILES["files"]["name"];
-            $tmp_name = $_FILES['files']['tmp_name'];
-            if (!empty($tmp_name)) {
-                $uploadFolder = './uploads';
-                $extension = pathinfo($name, PATHINFO_EXTENSION);
-                $filename = $username . "_" . $email . "." . $extension;
-                $FileDest = $uploadFolder . "/" . $filename;
+    include "validation.php";
 
-                if ($name && $_FILES['files']['size'] == 0) {
-                    echo 'File size is too big';
-                    exit();
-                }
+    if (empty($errors)) {
+        $name = $_FILES["files"]["name"];
+        $tmp_name = $_FILES['files']['tmp_name'];
+        if (!empty($tmp_name)) {
+            $uploadFolder = './uploads';
+            $extension = pathinfo($name, PATHINFO_EXTENSION);
+            $filename = $username . "_" . $email . "." . $extension;
+            $FileDest = $uploadFolder . "/" . $filename;
 
-                if (move_uploaded_file($tmp_name, $FileDest)) {
+            if ($name && $_FILES['files']['size'] == 0) {
+                echo 'File size is too big';
+                exit();
+            }
 
-                    // Insert into DB
-                    try {
+            if (move_uploaded_file($tmp_name, $FileDest)) {
+
+                // Insert into DB
+                try {
+                    if ($_POST['id'] == $_COOKIE['login']) {
                         $sql = "UPDATE employee SET username='$username',email='$email',gender='$gender',image='$filename' WHERE id='$id'";
-                    } catch (Exception $ex) {
-                        echo "<br>" . $ex->getMessage();
+                    } else {
+                        $sql = "UPDATE interns SET username='$username',email='$email',gender='$gender',image='$filename' WHERE id='$id'";
                     }
+                } catch (Exception $ex) {
+                    echo "<br>" . $ex->getMessage();
+                }
 
-                    if ($conn->query($sql)) {
-                        header('Location:index.php');
-                    }
-                    echo 'successfully save : )';
-                } else {
-                    echo 'Error uploading';
+                if ($conn->query($sql)) {
+                    header('Location:index.php');
                 }
+                echo 'successfully save : )';
             } else {
+                echo 'Error uploading';
+            }
+        } else {
+            if ($_POST['id'] == $_COOKIE['login']) {
+
                 $sql = "UPDATE employee SET username='$username',email='$email',gender='$gender' WHERE id='$id'";
-                $status = $conn->query($sql);
-                echo "<br>" . $sql;
-                if ($status) {
-                    echo "<br>success";
-                    header("Location: index.php");
-                } else {
-                    echo "<br>something went wrong";
-                }
+            } else {
+                $sql = "UPDATE interns SET username='$username',email='$email',gender='$gender' WHERE id='$id'";
+            }
+            $status = $conn->query($sql);
+            echo "<br>" . $sql;
+            if ($status) {
+                echo "<br>success";
+                header("Location: index.php");
+            } else {
+                echo "<br>something went wrong";
             }
         }
     }
-    ?>
+}
+?>
     <div class="container mt-4">
 
         <form method="POST" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>"
@@ -131,16 +159,20 @@ include "db_conn.php";
                         <legend class="control-label col-form-label col-sm-2 pt-0">Gender</legend>
                         <div class="col-sm-10">
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="gender" id="gridRadios1" value="male"
-                                    <?php if (isset($_POST['gender']) && $_POST['gender'] == "male") echo "checked"; ?>>
+                                <input class="form-check-input" type="radio" name="gender" id="gridRadios1" value="male" <?php if (isset($_POST['gender']) && $_POST['gender'] == "male") {
+    echo "checked";
+}
+?>>
                                 <label class="form-check-label" for="gridRadios1">
                                     Male
                                 </label>
                             </div>
                             <div class="form-check">
                                 <input class="form-check-input" type="radio" name="gender" id="gridRadios2"
-                                    value="female"
-                                    <?php if (isset($_POST['gender']) && $_POST['gender'] == "female") echo "checked"; ?>>
+                                    value="female" <?php if (isset($_POST['gender']) && $_POST['gender'] == "female") {
+    echo "checked";
+}
+?>>
                                 <label class="form-check-label" for="gridRadios2">
                                     Female
                                 </label>
@@ -153,10 +185,10 @@ include "db_conn.php";
                 <div class="form-group row align-items-center">
                     <div class="input-group mb-3">
                         <?php if (!(empty($_POST['image']))) {
-                        ?>
+    ?>
                         <img class="rounded-circle" alt="avatar1" src="<?php echo "./uploads/" . $_POST['image'] ?>"
                             alt="Image" style="width: 100px; height: 100px;">
-                        <?php } ?>
+                        <?php }?>
                         <div class="col-sm-8">
                             <input id="file_input" name='files' type="file" class="custom-file-input">
                             <label class="custom-file-label" for="inputGroupFile02"

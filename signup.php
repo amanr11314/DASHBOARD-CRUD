@@ -1,4 +1,6 @@
 <?php
+use PHPMailer\PHPMailer\Exception;
+use PHPMailer\PHPMailer\PHPMailer;
 // Start the session
 session_start();
 if (!(empty($_COOKIE['login']) || $_COOKIE['login'] == '')) {
@@ -6,6 +8,7 @@ if (!(empty($_COOKIE['login']) || $_COOKIE['login'] == '')) {
     die();
 }
 include "db_conn.php";
+/// for send mail ///
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -56,7 +59,7 @@ include "db_conn.php";
         margin: 20px;
     }
 
-    .sign-up {
+    .sign-in {
         text-align: center;
         padding: 20px 0 0;
     }
@@ -78,105 +81,147 @@ include "db_conn.php";
 <body>
     <?php
 
-    if (isset($_POST["submit"])) {
-        include "db_conn.php";
-        $username = $_POST['username'];
-        $email = $_POST['email'];
-        $gender = $_POST['gender'];
-        $password1 = $_POST['password1'];
-        $password2 = $_POST['password2'];
+if (isset($_POST["submit"])) {
+    include "db_conn.php";
+    $username = $_POST['username'];
+    $email = $_POST['email'];
+    $gender = $_POST['gender'];
+    $password1 = $_POST['password1'];
+    $password2 = $_POST['password2'];
 
+    include "validation.php";
 
+    if ($password1 !== $password2) {
+        $errors['password'] = "Password do not match";
+    } else if (strlen($password1) < 6) {
+        $errors['password'] = "Password should be minimum of 6 characters";
+    } else if (strlen($password1) >= 6) {
+        $cap = preg_match('/[A-Z]/', $password1);
+        $spe = preg_match('/[!@#$%^&*()]/', $password1);
+        $num = preg_match('/[0-9]/', $password1);
+        if ($cap && $spe && $num) {
+            // for existing account with this email
+            include "backend_validation.php";
+            // hased password
+            $_password = password_hash($password1, PASSWORD_DEFAULT);
+            if (empty($errors)) {
+                $name = $_FILES["files"]["name"];
+                $tmp_name = $_FILES['files']['tmp_name'];
+                if (!empty($tmp_name)) {
+                    $uploadFolder = './uploads';
+                    $extension = pathinfo($name, PATHINFO_EXTENSION);
+                    $filename = $username . "_" . $email . "." . $extension;
+                    $FileDest = $uploadFolder . "/" . $filename;
 
-        include "validation.php";
-
-        if ($password1 !== $password2) {
-            $errors['password'] = "Password do not match";
-        } else if (strlen($password1) < 6) {
-            $errors['password'] = "Password should be minimum of 6 characters";
-        } else if (strlen($password1) >= 6) {
-            $cap = preg_match('/[A-Z]/', $password1);
-            $spe = preg_match('/[!@#$%^&*()]/', $password1);
-            $num = preg_match('/[0-9]/', $password1);
-            if ($cap && $spe && $num) {
-                // for existing account with this email
-                include "backend_validation.php";
-                // hased password
-                $_password = password_hash($password1, PASSWORD_DEFAULT);
-                if (empty($errors)) {
-                    $name = $_FILES["files"]["name"];
-                    $tmp_name = $_FILES['files']['tmp_name'];
-                    if (!empty($tmp_name)) {
-                        $uploadFolder = './uploads';
-                        $extension = pathinfo($name, PATHINFO_EXTENSION);
-                        $filename = $username . "_" . $email . "." . $extension;
-                        $FileDest = $uploadFolder . "/" . $filename;
-
-                        if ($name && $_FILES['files']['size'] == 0) {
-                            $errors['msg'] =  'File size is too big';
-                            exit();
-                        }
-
-                        if (move_uploaded_file($tmp_name, $FileDest)) {
-
-                            // Insert into DB
-                            try {
-                                $sql = "INSERT INTO employee (username,email,gender, image, password )VALUES('$username','$email','$gender','$filename', '$_password')";
-                            } catch (Exception $ex) {
-                                echo "<br>" . $ex->getMessage();
-                            }
-
-                            if ($conn->query($sql)) {
-                                // Set cookie and redirect to dashboard homepage
-                                setcookie('email', $email, time() + 60 * 60 * 24 * 1, "/");
-                                setcookie('password', $password1, time() + 60 * 60 * 24 * 1, "/");
-                                header('Location:login.php');
-                            }
-                            echo 'successfully save : )';
-                        } else {
-                            $errors['msg'] =  'Error uploading file';
-                        }
-                    } else {
-                        // Insert into DB
-                        $testuser = $_POST['username'];
-                        try {
-                            $sql = "INSERT INTO employee(username,email,gender, password )VALUES('$testuser','$email','$gender', '$_password')";
-                        } catch (Exception $ex) {
-                            echo "<br>" . $ex->getMessage();
-                        }
-                        if ($conn->query($sql)) {
-                            // Set cookie and redirect to dashboard homepage
-                            // header('Location:index.php');
-                            setcookie('email', $email, time() + 2, '/');
-                            setcookie('password', $password1, time() + 2, '/');
-                            header('Location:login.php');
-                        }
-                        echo 'successfully save : )';
+                    if ($name && $_FILES['files']['size'] == 0) {
+                        $errors['msg'] = 'File size is too big';
+                        exit();
                     }
+
+                    if (move_uploaded_file($tmp_name, $FileDest)) {
+
+                        // Insert into DB
+                        // $sql = "INSERT INTO employee (username,email,gender, image, password )VALUES('$username','$email','$gender','$filename', '$_password')";
+
+                        // if ($conn->query($sql)) {
+                        // redirect to email confirmation page
+
+                        // send email
+                        // $mail_sent = mail('abc','sub','msg');
+
+                        // Set cookie and redirect to dashboard homepage
+                        // setcookie('email', $email, time() + 60 * 60 * 24 * 1, "/");
+                        // setcookie('password', $password1, time() + 60 * 60 * 24 * 1, "/");
+                        // header('Location:login.php');
+                        // }
+                        echo 'successfully save : )';
+                    } else {
+                        $errors['msg'] = 'Error uploading file';
+                    }
+                } else {
+                    // Insert into DB
+                    $testuser = $_POST['username'];
+                    $token = md5($_POST['email']) . rand(10, 9999);
+                    $status = 0;
+                    $redirect_url = 'localhost/email_verification.php?key=' . $_POST['email'] . '&token=' . $token;
+                    $link = "<a href=\'" . $redirect_url . "\'>Click and Verify Email</a>";
+                    $sql = "INSERT INTO employee (username, email, gender, password, status, email_verification_link) VALUES ('$testuser','$email','$gender', '$_password', $status, '$token')";
+
+                    try {
+                        $conn->query($sql);
+                    } catch (Exception $ex) {
+                        print_r($sql);
+                        print_r($ex->getMessage());
+                    }
+                    // include "send_email.php";
+
+                    // $subject_ = 'Email Verification';
+                    $body_ = "<a href =" . $redirect_url . ">www.example.com</a>";
+
+                    /** Send mail */
+
+                    // Include PHPMailer classes
+
+                    require 'PHPMailer/src/Exception.php';
+                    require 'PHPMailer/src/PHPMailer.php';
+                    require 'PHPMailer/src/SMTP.php';
+                    $mail = new PHPMailer(true);
+
+                    try {
+                        // Set the SMTP configuration
+                        $mail->isSMTP();
+                        $mail->Host = 'smtp.gmail.com';
+                        $mail->Port = 587; // or the appropriate port for your SMTP server
+                        $mail->SMTPAuth = true;
+                        $mail->Username = 'testmanager.e.123@gmail.com';
+                        include "password.php";
+                        $mail->Password = 'iyypuilmkcbgobow';
+
+                        // Set the sender and recipient
+                        $mail->setFrom('testmanager.e.123@gmail.com', 'Test Manager');
+                        $mail->addAddress($email, $username);
+
+                        // Set the email subject and message
+                        $mail->Subject = 'Email Verification';
+
+                        $mail->isHTML(true);
+                        $mail->Body = sprintf($body_);
+
+                        // Send the email
+                        if ($mail->send()) {
+                            print_r('Email sent successfully!');
+                            print_r($body_);
+                        }
+                    } catch (Exception $e) {
+                        print_r($body);
+                        echo 'Failed to send email. Error: ' . $mail->ErrorInfo . $e->getMessage();
+                    }
+                    /** Send mail end */
                 }
-                // ENCODE PASSWORD AND INSERT
-            } else {
-                echo $cap;
-                echo $spe;
-                echo $num;
-                $errors['password'] = "Password must contain uppercase, special chracters and numbers";
             }
+            // ENCODE PASSWORD AND INSERT
+        } else {
+            echo $cap;
+            echo $spe;
+            echo $num;
+            $errors['password'] = "Password must contain uppercase, special chracters and numbers";
         }
     }
-    ?>
+}
+?>
     <div class="global-container">
         <div class="mx-4 mt-4 col-sm-10">
             <div class="card login-form1">
                 <div class="card-body">
                     <h3 class="card-title text-center">Sign Up</h3>
                     <div class="card-text">
-                        <?php if (!empty($errors['msg'])) { ?>
+                        <?php if (!empty($errors['msg'])) {?>
                         <div class="alert alert-danger alert-dismissible fade show" role="alert">
                             <?php
-                            echo $errors['msg'];
-                        } ?></div>
+echo $errors['msg'];
+} ?></div>
                         <form method="POST" enctype="multipart/form-data"
-                            action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);  ?>">
+                            action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
                             <label for="id" class="text-danger col-form-label">* Required field</label>
                             <input hidden type="text" name="id" value=<?php echo $_POST['id']; ?>>
                             <div class="form-group required row">
@@ -219,16 +264,20 @@ include "db_conn.php";
                                     <div class="col-sm-10">
                                         <div class="form-check">
                                             <input class="form-check-input" type="radio" name="gender" id="gridRadios1"
-                                                value="male"
-                                                <?php if (isset($_POST['gender']) && $_POST['gender'] == "male") echo "checked"; ?>>
+                                                value="male" <?php if (isset($_POST['gender']) && $_POST['gender'] == "male") {
+    echo "checked";
+}
+?>>
                                             <label class="form-check-label" for="gridRadios1">
                                                 Male
                                             </label>
                                         </div>
                                         <div class="form-check">
                                             <input class="form-check-input" type="radio" name="gender" id="gridRadios2"
-                                                value="female"
-                                                <?php if (isset($_POST['gender']) && $_POST['gender'] == "female") echo "checked"; ?>>
+                                                value="female" <?php if (isset($_POST['gender']) && $_POST['gender'] == "female") {
+    echo "checked";
+}
+?>>
                                             <label class="form-check-label" for="gridRadios2">
                                                 Female
                                             </label>
@@ -237,7 +286,7 @@ include "db_conn.php";
                                     </div>
                                 </div>
                             </fieldset>
-                            <div class="form-group row">
+                            <div class="form-group">
                                 <div class="input-group mb-3">
                                     <div class="col-sm-10">
                                         <input id="inputGroupFile01" aria-describedby="inputGroupFileAddon01"
@@ -246,14 +295,19 @@ include "db_conn.php";
                                     </div>
                                 </div>
                             </div>
-                            <div class="form-group row">
-                                <div class="col-sm-10">
+                            <div class="d-flex flex-row justify-content-center">
+                                <div class="col-sm-10 text-center">
                                     <button type="submit" name="submit" class="btn btn-primary" style="width: 100px;">
                                         Sign Up
                                     </button>
                                 </div>
                             </div>
+                            <div class="sign-in">
+                                <span class="text-center"> Already have an account? <a href="login.php">Log
+                                        In</a></span>
+                            </div>
                         </form>
+
                     </div>
                 </div>
             </div>
