@@ -107,6 +107,14 @@ if (isset($_POST["submit"])) {
             if (empty($errors)) {
                 $name = $_FILES["files"]["name"];
                 $tmp_name = $_FILES['files']['tmp_name'];
+
+                // Send email vaiables
+                $token = md5($_POST['email']) . rand(10, 9999);
+                $status = 0;
+                $redirect_url = 'localhost/email_verification.php?key=' . $_POST['email'] . '&token=' . $token;
+                $testuser = $_POST['username'];
+                $link = "<a href=\'" . $redirect_url . "\'>Click and Verify Email</a>";
+
                 if (!empty($tmp_name)) {
                     $uploadFolder = './uploads';
                     $extension = pathinfo($name, PATHINFO_EXTENSION);
@@ -122,6 +130,57 @@ if (isset($_POST["submit"])) {
 
                         // Insert into DB
                         // $sql = "INSERT INTO employee (username,email,gender, image, password )VALUES('$username','$email','$gender','$filename', '$_password')";
+                        $sql = "INSERT INTO employee (username, email, gender, image, password, status, email_verification_link) VALUES ('$testuser','$email','$gender', '$filename', '$_password', $status, '$token')";
+
+                        try {
+                            $conn->query($sql);
+                        } catch (Exception $ex) {
+                            print_r($sql);
+                            print_r($ex->getMessage());
+                        }
+                        // include "send_email.php";
+
+                        // $subject_ = 'Email Verification';
+                        $body_ = "<a href =" . $redirect_url . ">www.example.com</a>";
+
+                        /** Send mail */
+
+                        // Include PHPMailer classes
+
+                        require 'PHPMailer/src/Exception.php';
+                        require 'PHPMailer/src/PHPMailer.php';
+                        require 'PHPMailer/src/SMTP.php';
+                        $mail = new PHPMailer(true);
+
+                        try {
+                            // Set the SMTP configuration
+                            $mail->isSMTP();
+                            $mail->Host = 'smtp.gmail.com';
+                            $mail->Port = 587; // or the appropriate port for your SMTP server
+                            $mail->SMTPAuth = true;
+                            $mail->Username = 'testmanager.e.123@gmail.com';
+                            $mail->Password = 'iyypuilmkcbgobow';
+
+                            // Set the sender and recipient
+                            $mail->setFrom('testmanager.e.123@gmail.com', 'Test Manager');
+                            $mail->addAddress($email, $username);
+
+                            // Set the email subject and message
+                            $mail->Subject = 'Email Verification';
+
+                            $mail->isHTML(true);
+                            $mail->Body = sprintf($body_);
+
+                            // Send the email
+                            if ($mail->send()) {
+                                print_r('Email sent successfully!');
+                                print_r($body_);
+                            }
+                        } catch (Exception $e) {
+                            print_r($body);
+                            echo 'Failed to send email. Error: ' . $mail->ErrorInfo . $e->getMessage();
+                        }
+                        /** Send mail end */
 
                         // if ($conn->query($sql)) {
                         // redirect to email confirmation page
@@ -140,11 +199,10 @@ if (isset($_POST["submit"])) {
                     }
                 } else {
                     // Insert into DB
-                    $testuser = $_POST['username'];
-                    $token = md5($_POST['email']) . rand(10, 9999);
-                    $status = 0;
-                    $redirect_url = 'localhost/email_verification.php?key=' . $_POST['email'] . '&token=' . $token;
-                    $link = "<a href=\'" . $redirect_url . "\'>Click and Verify Email</a>";
+                    // $token = md5($_POST['email']) . rand(10, 9999);
+                    // $status = 0;
+                    // $redirect_url = 'localhost/email_verification.php?key=' . $_POST['email'] . '&token=' . $token;
+                    // $link = "<a href=\'" . $redirect_url . "\'>Click and Verify Email</a>";
                     $sql = "INSERT INTO employee (username, email, gender, password, status, email_verification_link) VALUES ('$testuser','$email','$gender', '$_password', $status, '$token')";
 
                     try {
@@ -174,7 +232,6 @@ if (isset($_POST["submit"])) {
                         $mail->Port = 587; // or the appropriate port for your SMTP server
                         $mail->SMTPAuth = true;
                         $mail->Username = 'testmanager.e.123@gmail.com';
-                        include "password.php";
                         $mail->Password = 'iyypuilmkcbgobow';
 
                         // Set the sender and recipient

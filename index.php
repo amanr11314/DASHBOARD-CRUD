@@ -73,6 +73,8 @@ if ($_GET['action'] === 'delete' && isset($_GET['id'])) {
         integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css"
         integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+
 
     <title>Dashboard</title>
     <style>
@@ -83,11 +85,34 @@ if ($_GET['action'] === 'delete' && isset($_GET['id'])) {
     .table-body {
         overflow-y: scroll;
     }
+
+    .my-toast {
+        position: fixed;
+        z-index: 2;
+        right: 1rem;
+        top: 1rem;
+        width: fit-content;
+    }
     </style>
+
 
 </head>
 
 <body>
+    <?php
+if ($_COOKIE['signedin'] == 'OK') {
+    setcookie('signedin', '', time() - 60, '/');
+    ?>
+    <div class="my-toast">
+        <div id="#hideDiv" class="alert alert-success alert-dismissible fade show" role="alert">
+            Login Success
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    </div>
+    <?php }?>
+
     <header>
         <div class="content-wrapper">
             <div>
@@ -341,6 +366,16 @@ if ($result->num_rows > 0) {
     </script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
         integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous">
+    </script>
+    <script>
+    console.log('insise script');
+    $(document).ready(function() {
+        console.log('inside fuction');
+        setTimeout(function() {
+            toast = document.querySelector('.close');
+            toast.click();
+        }, 5000)
+    });
     </script>
 
 </body>

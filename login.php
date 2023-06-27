@@ -69,7 +69,6 @@ if (!(empty($_COOKIE['login']) || $_COOKIE['login'] == '')) {
         margin-top: 20px;
     }
     </style>
-
 </head>
 
 <body>
@@ -112,7 +111,9 @@ if (isset($_POST["login"])) {
                     setcookie('email', $row['email'], time() + 60 * 60 * 24 * 1, '/');
                     setcookie('gender', $row['gender'], time() + 60 * 60 * 24 * 1, '/');
                     setcookie('image', $row['image'], time() + 60 * 60 * 24 * 1, '/');
+                    setcookie('signedin', 'OK', time() + 100, '/');
                     header('Location:index.php');
+                    die();
                 }
             } else {
                 $errors['msg'] = "Incorrect password";
