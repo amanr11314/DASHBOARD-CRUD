@@ -1,10 +1,13 @@
 <?php
+use PHPMailer\PHPMailer\Exception;
+use PHPMailer\PHPMailer\PHPMailer;
 // Start the session
 session_start();
 if (!(empty($_COOKIE['login']) || $_COOKIE['login'] == '')) {
     header("Location: index.php");
     die();
 }
+include 'db_conn.php';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -18,12 +21,8 @@ if (!(empty($_COOKIE['login']) || $_COOKIE['login'] == '')) {
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css"
         integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
 
-    <title>LogIn</title>
+    <title>Reset Pasword</title>
     <style>
-    .action-btn {
-        font-size: 1em;
-    }
-
     html,
     body {
         height: 100%;
@@ -58,17 +57,6 @@ if (!(empty($_COOKIE['login']) || $_COOKIE['login'] == '')) {
         margin: 20px;
     }
 
-    .sign-up {
-        text-align: center;
-        padding: 20px 0 0;
-    }
-
-    .alert {
-        margin-bottom: -30px;
-        font-size: 13px;
-        margin-top: 20px;
-    }
-
     .my-toast {
         position: fixed;
         z-index: 2;
@@ -81,61 +69,131 @@ if (!(empty($_COOKIE['login']) || $_COOKIE['login'] == '')) {
 
 <body>
     <?php
-if (isset($_POST["login"])) {
+if (isset($_POST["reset"])) {
     include "db_conn.php";
-    $email = $_POST['email'] ?? $_COOKIE['email'];
-    $password = $_POST['password'] ?? $_COOKIE['password'];
-
-    include "validation.php";
-    if (empty($password)) {
-        $errors['password'] = "Please enter password";
-    }
-
-    if (empty($errors)) {
-        $sql = "SELECT * FROM employee WHERE email='" . $_POST['email'] . "'";
-        $result = $conn->query($sql);
-        if ($result->num_rows > 0) {
-            $row = $result->fetch_assoc();
-
-            $id = $row['id'];
-
-            $_password = $row['password'];
-            $status = $row['status'];
-
-            if (password_verify($password, $_password)) {
-
-                // remove remembered password
-                setcookie($password, '', time() - 1000);
-                setcookie($password, '', time() - 1000, '/');
-
-                if ($row['status'] == 0) {
-                    header('Location:login.php?status=email-verify');
-                    die();
-                } else {
-
-                    // setcookie('total', $total, time() + 60 * 60 * 24 * 1, '/');
-                    setcookie('login', $id, time() + 60 * 60 * 24 * 1, '/');
-                    setcookie('name', $row['username'], time() + 60 * 60 * 24 * 1, '/');
-                    setcookie('email', $row['email'], time() + 60 * 60 * 24 * 1, '/');
-                    setcookie('gender', $row['gender'], time() + 60 * 60 * 24 * 1, '/');
-                    setcookie('image', $row['image'], time() + 60 * 60 * 24 * 1, '/');
-                    setcookie('signedin', 'OK', time() + 100, '/');
-                    header('Location:index.php');
-                    die();
-                }
-            } else {
-                $errors['msg'] = "Incorrect password";
-            }
-        } else {
-            $errors['msg'] = "Account does not exist";
+    $email = $_POST['email'];
+    $errors = array();
+    if (empty($_POST["email"])) {
+        $errors['email'] = "Email is Required";
+    } else {
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $errors['email'] = "Invalid email format";
         }
     }
+    if (empty($errors)) {
+        $sql = "SELECT * FROM employee WHERE email='" . $_POST['email'] . "';";
+        $result = $conn->query($sql);
+        // account found
+        if ($result->num_rows > 0) {
+            print_r('account found');
+            $row = $result->fetch_assoc();
+            $token = md5($_POST['email']) . rand(10, 9999);
+            $reset_token_status = 0;
+            $redirect_url = 'localhost/change_password.php?key=' . $_POST['email'] . '&reset_token=' . $token;
+            $id = $row['id'];
+            $body_ = "<a href =" . $redirect_url . ">Reset Password</a>";
+
+            // UPDATE token and token_status in DB
+            $sql = "UPDATE employee SET reset_token_status='$reset_token_status',password_reset_link='$token' WHERE id='$id'";
+
+            try {
+                $conn->query($sql);
+
+            } catch (Exception $ex) {
+                print_r($sql);
+                print_r($ex->getMessage());
+            }
+
+            /** Send mail */
+
+            // Include PHPMailer classes
+
+            require 'PHPMailer/src/Exception.php';
+            require 'PHPMailer/src/PHPMailer.php';
+            require 'PHPMailer/src/SMTP.php';
+            $mail = new PHPMailer(true);
+
+            try {
+                // Set the SMTP configuration
+                $mail->isSMTP();
+                $mail->Host = 'smtp.gmail.com';
+                $mail->Port = 587; // or the appropriate port for your SMTP server
+                $mail->SMTPAuth = true;
+                $mail->Username = 'testmanager.e.123@gmail.com';
+                $mail->Password = 'iyypuilmkcbgobow';
+
+                // Set the sender and recipient
+                $mail->setFrom('testmanager.e.123@gmail.com', 'Test Manager');
+                $username_ = explode('@', $email)[0];
+                $mail->addAddress($email, $username_);
+
+                // Set the email subject and message
+                $mail->Subject = 'Reset Password';
+
+                $mail->isHTML(true);
+                $mail->Body = sprintf($body_);
+
+                // Send the email
+                if ($mail->send()) {
+                    print_r('Email sent successfully!');
+                    print_r($body_);
+                    header('Location:reset_password.php?status=sent-link');
+                    die();
+                }
+            } catch (Exception $e) {
+                print_r($body);
+                echo 'Failed to send email. Error: ' . $mail->ErrorInfo . $e->getMessage();
+            }
+            /** Send mail end */
+        } else {
+            // raise error no account exists
+        }
+    }
+
+    /*
+if (empty($errors)) {
+$sql = "SELECT * FROM employee WHERE email='" . $_POST['email'] . "'";
+$result = $conn->query($sql);
+if ($result->num_rows > 0) {
+$row = $result->fetch_assoc();
+
+$id = $row['id'];
+
+$_password = $row['password'];
+$status = $row['status'];
+
+if (password_verify($password, $_password)) {
+
+// remove remembered password
+setcookie($password, '', time() - 1000);
+setcookie($password, '', time() - 1000, '/');
+
+if ($row['status'] == 0) {
+header('Location:login.php?status=email-verify');
+die();
+} else {
+
+// setcookie('total', $total, time() + 60 * 60 * 24 * 1, '/');
+setcookie('login', $id, time() + 60 * 60 * 24 * 1, '/');
+setcookie('name', $row['username'], time() + 60 * 60 * 24 * 1, '/');
+setcookie('email', $row['email'], time() + 60 * 60 * 24 * 1, '/');
+setcookie('gender', $row['gender'], time() + 60 * 60 * 24 * 1, '/');
+setcookie('image', $row['image'], time() + 60 * 60 * 24 * 1, '/');
+setcookie('signedin', 'OK', time() + 100, '/');
+header('Location:index.php');
+die();
+}
+} else {
+$errors['msg'] = "Incorrect password";
+}
+} else {
+$errors['msg'] = "Account does not exist";
+}
+}
+ */
 }
 ?>
-    <?php if ($_COOKIE['signup'] == 'OK') {
-
-// show generic toast //
-    setcookie('signup', '', time() - 60, '/');
+    <?php if ($_GET['status'] == 'sent-link') {
     ?>
     <div class="my-toast">
         <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -145,69 +203,24 @@ if (isset($_POST["login"])) {
             </button>
         </div>
     </div>
-    <?php } else if ($_GET['status'] == 'email-verify') {?>
-    <div class="my-toast">
-        <div class="alert alert-info alert-dismissible fade show" role="alert">
-            Please verify your email first
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
-        </div>
-    </div>
-    <?php } else if ($_GET['status'] == 'verified') {?>
-    <div class="my-toast">
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            Congratulations! Your email has been verified.
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
-        </div>
-    </div>
-    <?php } else if ($_GET['status'] == 'password-reset-success') {?>
-    <div class="my-toast">
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            Congratulations! Your password has been reset. Login with New Password
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
-        </div>
-    </div>
     <?php }?>
+
     <div class="global-container">
         <div class="card login-form">
             <div class="card-body">
-                <h3 class="card-title text-center">Log in</h3>
+                <h3 class="card-title text-center">Reset Password</h3>
                 <div class="card-text">
-                    <?php if (!empty($errors['msg'])) {?>
-                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                        <?php
-echo $errors['msg'];
-} ?>
-                    </div>
                     <form method="POST" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
                         <div class="form-group">
                             <label for="exampleInputEmail1">Email address</label>
                             <input name="email" type="email" class="form-control form-control-sm"
-                                id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Email" value="<?php if (isset($_COOKIE["email"])) {
-    echo $_COOKIE["email"];
+                                id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Email" value="<?php if (isset($_POST["email"])) {
+    echo $_POST["email"];
 }?>" ">
                             <span class=" text-danger"><?php echo $errors['email']; ?></span>
                         </div>
-                        <div class="form-group">
-                            <label for="exampleInputPassword1">Password</label>
-                            <input type="password" name='password' placeholder="Password"
-                                class="form-control form-control-sm" id="exampleInputPassword1"
-                                value=<?php echo $_COOKIE['password']; ?>>
-                            <span class="text-danger"><?php echo $errors['password']; ?></span>
-                        </div>
-                        <button type="submit" name="login" class="btn btn-primary btn-block">Sign in</button>
 
-                        <div class="sign-up">
-                            Don't have an account? <a href="signup.php">Register</a>
-                        </div>
-                        <div class="text-center">
-                            <a href="reset_password.php">Forgot Password</a>
-                        </div>
+                        <button type="submit" name="reset" class="btn btn-primary btn-block">Send me reset link</button>
                     </form>
                 </div>
             </div>
@@ -254,17 +267,6 @@ echo $errors['msg'];
         }, 2500)
     });
     </script>
-
-    <?php if ($_GET['status'] == 'email-verify') {
-    ?>
-    <script>
-    $(document).ready(function() {
-        modalButton = document.querySelector('.mymodalbtn');
-        console.log(modalButton);
-        modalButton.click();
-    });
-    </script>
-    <?php }?>
 
 </body>
 

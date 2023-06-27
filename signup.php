@@ -8,7 +8,6 @@ if (!(empty($_COOKIE['login']) || $_COOKIE['login'] == '')) {
     die();
 }
 include "db_conn.php";
-/// for send mail ///
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -129,7 +128,6 @@ if (isset($_POST["submit"])) {
                     if (move_uploaded_file($tmp_name, $FileDest)) {
 
                         // Insert into DB
-                        // $sql = "INSERT INTO employee (username,email,gender, image, password )VALUES('$username','$email','$gender','$filename', '$_password')";
                         $sql = "INSERT INTO employee (username, email, gender, image, password, status, email_verification_link) VALUES ('$testuser','$email','$gender', '$filename', '$_password', $status, '$token')";
 
                         try {
@@ -174,7 +172,9 @@ if (isset($_POST["submit"])) {
                             // Send the email
                             if ($mail->send()) {
                                 print_r('Email sent successfully!');
-                                print_r($body_);
+                                setcookie('signup', 'OK', time() + 100, '/');
+                                header('Location:login.php');
+                                die();
                             }
                         } catch (Exception $e) {
                             print_r($body);
@@ -182,27 +182,12 @@ if (isset($_POST["submit"])) {
                         }
                         /** Send mail end */
 
-                        // if ($conn->query($sql)) {
-                        // redirect to email confirmation page
-
-                        // send email
-                        // $mail_sent = mail('abc','sub','msg');
-
-                        // Set cookie and redirect to dashboard homepage
-                        // setcookie('email', $email, time() + 60 * 60 * 24 * 1, "/");
-                        // setcookie('password', $password1, time() + 60 * 60 * 24 * 1, "/");
-                        // header('Location:login.php');
-                        // }
                         echo 'successfully save : )';
                     } else {
                         $errors['msg'] = 'Error uploading file';
                     }
                 } else {
                     // Insert into DB
-                    // $token = md5($_POST['email']) . rand(10, 9999);
-                    // $status = 0;
-                    // $redirect_url = 'localhost/email_verification.php?key=' . $_POST['email'] . '&token=' . $token;
-                    // $link = "<a href=\'" . $redirect_url . "\'>Click and Verify Email</a>";
                     $sql = "INSERT INTO employee (username, email, gender, password, status, email_verification_link) VALUES ('$testuser','$email','$gender', '$_password', $status, '$token')";
 
                     try {
@@ -211,9 +196,7 @@ if (isset($_POST["submit"])) {
                         print_r($sql);
                         print_r($ex->getMessage());
                     }
-                    // include "send_email.php";
 
-                    // $subject_ = 'Email Verification';
                     $body_ = "<a href =" . $redirect_url . ">www.example.com</a>";
 
                     /** Send mail */
@@ -248,6 +231,9 @@ if (isset($_POST["submit"])) {
                         if ($mail->send()) {
                             print_r('Email sent successfully!');
                             print_r($body_);
+                            setcookie('signup', 'OK', time() + 100, '/');
+                            header('Location:login.php');
+                            die();
                         }
                     } catch (Exception $e) {
                         print_r($body);

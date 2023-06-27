@@ -30,6 +30,7 @@ include "db_conn.php";
 if (isset($_COOKIE["login"])) {
 
     $sql = "SELECT * FROM employee WHERE id=" . $_COOKIE['login'];
+    print_r($sql);
     $result = $conn->query($sql);
     if ($result->num_rows > 0) {
         $row = $result->fetch_assoc();

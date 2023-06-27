@@ -1,10 +1,10 @@
 <?php
 // Start the session
-// session_start();
-// if (!(empty($_COOKIE['login']) || $_COOKIE['login'] == '')) {
-//     header("Location: index.php");
-//     die();
-// }
+session_start();
+if ((empty($_COOKIE['login']) || $_COOKIE['login'] == '')) {
+    header("Location: index.php");
+    die();
+}
 include "db_conn.php";
 ?>
 <!DOCTYPE html>
