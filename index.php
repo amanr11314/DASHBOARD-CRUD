@@ -99,20 +99,32 @@ if ($_GET['action'] === 'delete' && isset($_GET['id'])) {
 </head>
 
 <body>
-    <?php
-if ($_COOKIE['signedin'] == 'OK') {
+    <?php if ($_COOKIE['signedin'] == 'OK') {
+
+    // show generic toast //
     setcookie('signedin', '', time() - 60, '/');
     ?>
     <div class="my-toast">
-        <div id="#hideDiv" class="alert alert-success alert-dismissible fade show" role="alert">
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
             Login Success
             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
             </button>
         </div>
     </div>
-    <?php }?>
+    <?php } else if ($_GET['status'] == 'change-password-success') {
 
+    // show generic toast //
+    ?>
+    <div class="my-toast">
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            "Congratulations! Your password has been changed.";
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    </div>
+    <?php }?>
     <header>
         <div class="content-wrapper">
             <div>
@@ -152,6 +164,9 @@ if ($_COOKIE['signedin'] == 'OK') {
 
                             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuLink">
                                 <a class="dropdown-item" href="profile.php">Profile</a>
+                                <a class="dropdown-item" href="change_old_password.php">Change Password</a>
+                                <a href="" class="dropdown-item" data-toggle="modal"
+                                    data-target="#modalChangePassword">Change Password</a>
                                 <a class="dropdown-item" href="logout.php">Logout</a>
                             </div>
                         </div>
@@ -191,20 +206,20 @@ if ($_COOKIE['signedin'] == 'OK') {
                 <?php
 
 // Display employees in table
-// $sql = "SELECT * FROM employee ";
-$sql = "SELECT * FROM interns ";
+$sql = "SELECT * FROM interns WHERE";
 if (isset($_POST["search"])) {
     $query = $_POST['query'];
     $query = trim($query);
     $query = stripslashes($query);
     $query = htmlspecialchars($query);
-    $sql = $sql . " WHERE concat( `username`, `email` ) LIKE '%$query%'";
+    $sql = $sql . " concat( `username`, `email` ) LIKE '%$query%'";
     $sql = $sql . " AND mentor=" . $_COOKIE['login'];
+} else {
+    $sql = $sql . " mentor=" . $_COOKIE['login'];
 }
 $offset = ($offset - 1) * $limit;
 $sql = $sql . " ORDER BY $sortColumn " . getOrder(getSortOrder());
 $sql = $sql . " LIMIT " . $offset . ',' . $limit;
-
 $result = $conn->query($sql);
 if ($result->num_rows > 0) {
     while ($data = $result->fetch_assoc()) {
@@ -275,7 +290,74 @@ if ($result->num_rows > 0) {
                         </div>
                     </div>
                 </div>
-                <?php
+                <!-- Change Password Modal -->
+                <!-- https://stackoverflow.com/questions/32055161/display-errors-on-modal-while-submitting-the-form -->
+                <?php $modalChangePasswordError = json_decode($_COOKIE['change_old_password'], true);?>
+                <div class="modal fade" id="modalChangePassword" tabindex="-1" role="dialog"
+                    aria-labelledby="myModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header text-center">
+                                <h4 class="modal-title w-100 font-weight-bold">Change Password</h4>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body mx-3">
+                                <form method="POST" action="change_password2.php">
+                                    <label for="id" class="text-danger col-form-label">* Required field</label>
+                                    <input hidden type="text" name="id" value=<?php echo $_COOKIE['login']; ?>>
+
+                                    <div class="form-group required row">
+                                        <label for="inputOldPassword" class="control-label col-sm-4 col-form-label">Old
+                                            Password</label>
+                                        <div class="col-sm-6">
+                                            <input type="password" class="form-control" id="inputOldPassword"
+                                                name="old_password" placeholder="Old Password"
+                                                value="<?php echo $_POST['old_password'] ?>">
+                                            <span id="changeOldPasswordError"
+                                                class="text-danger"><?php echo $modalChangePasswordError['old_password']; ?></span>
+                                        </div>
+                                    </div>
+                                    <div class="form-group required row">
+                                        <label for="inputPassword1"
+                                            class="control-label col-sm-4 col-form-label">Password</label>
+                                        <div class="col-sm-6">
+                                            <input type="password" class="form-control" id="inputPassword1"
+                                                name="password1" placeholder="Password"
+                                                value="<?php echo $_POST['password1'] ?>">
+                                            <span id="changePassword1Error"
+                                                class="text-danger"><?php echo $modalChangePasswordError['password']; ?></span>
+                                        </div>
+                                    </div>
+                                    <div class="form-group required row">
+                                        <label for="inputPassword2"
+                                            class="control-label col-sm-4 col-form-label">Confirm
+                                            Password</label>
+                                        <div class="col-sm-6">
+                                            <input type="password" class="form-control" id="inputPassword2"
+                                                name="password2" placeholder="Confirm Password"
+                                                value="<?php echo $_POST['password2'] ?>">
+                                            <span id="changePassword2Error"
+                                                class="text-danger"><?php echo $modalChangePasswordError['password']; ?></span>
+                                        </div>
+                                    </div>
+
+
+                                    <div class="d-flex flex-row justify-content-center">
+                                        <div class="col-sm-10 text-center">
+
+                                            <button type="submit" name="submit" class="btn btn-primary">
+                                                Change Password
+                                            </button>
+                                            <!-- <button type="button" class="btn btn-primary btn-change-password">Change -->
+                                            <!-- Password</button> -->
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        <?php
 }
     ?>
             </tbody>
@@ -291,25 +373,34 @@ if ($result->num_rows > 0) {
                     <?php echo 'Row Per Page: ' . $limit; ?>
                 </a>
                 <div class="dropdown-menu dropdown-menu-right">
-                    <a class="<?php if ($limit == 3) {echo 'dropdown-item active';} else {echo 'dropdown-item';}?>"
-                        href="index.php?limit=3">3</a>
-                    <a class="<?php if ($limit == 5) {echo 'dropdown-item active';} else {echo 'dropdown-item';}?>"
-                        href="
+                    <a class="<?php if ($limit == 3) {
+        echo 'dropdown-item active';
+    } else {
+        echo 'dropdown-item';
+    }?>" href="index.php?limit=3">3</a>
+                    <a class="<?php if ($limit == 5) {
+        echo 'dropdown-item active';
+    } else {
+        echo 'dropdown-item';
+    }?>" href="
                         index.php?limit=5">5</a>
-                    <a class="<?php if ($limit == 10) {echo 'dropdown-item active';} else {echo 'dropdown-item';}?>"
-                        href="
+                    <a class="<?php if ($limit == 10) {
+        echo 'dropdown-item active';
+    } else {
+        echo 'dropdown-item';
+    }?>" href="
                         index.php?limit=10">10</a>
                 </div>
             </div>
             <nav aria-label="Pagination" class="mx-4">
                 <ul class="pagination pagination-dark">
                     <?php
-// $sql2 = "SELECT COUNT(*) as total FROM employee";
-    $sql2 = "SELECT COUNT(*) as total FROM interns WHERE mentor=" . $_COOKIE['login'];
+$sql2 = "SELECT COUNT(*) as total FROM interns WHERE mentor=" . $_COOKIE['login'];
     $result2 = $conn->query($sql2);
     if ($result2->num_rows > 0) {
         $row_ = $result2->fetch_assoc();
         $total = ($row_['total']);
+        // print
     }
     $totalRows = intval($total);
     $totalPages = intval($totalRows / $limit);
@@ -358,9 +449,10 @@ if ($result->num_rows > 0) {
     echo "0 results";
 }
 ?>
-    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
-        integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous">
+    <!-- <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
     </script>
+        integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"> -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
         integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous">
     </script>
@@ -368,13 +460,47 @@ if ($result->num_rows > 0) {
         integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous">
     </script>
     <script>
-    console.log('insise script');
     $(document).ready(function() {
-        console.log('inside fuction');
+        // for auto toast close
         setTimeout(function() {
             toast = document.querySelector('.close');
             toast.click();
-        }, 5000)
+        }, 2500)
+
+        // for modal change password
+        $('.modal-body form').submit(function(event) {
+            // to stop the form from submitting (and the page reloading, so the modal will not close)
+            event.preventDefault();
+
+            $.ajax({
+                url: "change_password2.php",
+                type: "POST",
+                data: $(this).serialize(),
+                success: function(data) {
+                    // enable toast on homepage for successful password change
+                    document.location = 'index.php?status=change-password-success';
+
+                },
+                error: function(xhr, status, error) {
+                    // there was an error
+                    const errors = xhr.responseJSON;
+                    const old_password_error = errors['old_password'];
+                    const new_password_error = errors['password'];
+                    if (!!old_password_error) {
+                        $('#changeOldPasswordError').text(old_password_error);
+                    } else {
+                        $('#changeOldPasswordError').text('');
+                    }
+                    if (!!new_password_error) {
+                        $('#changePassword1Error').text(new_password_error);
+                        $('#changePassword2Error').text(new_password_error);
+                    } else {
+                        $('#changePassword1Error').text('');
+                        $('#changePassword2Error').text('');
+                    }
+                }
+            });
+        });
     });
     </script>
 
