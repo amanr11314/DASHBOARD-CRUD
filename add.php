@@ -71,6 +71,45 @@ if (isset($_POST["add-intern"])) {
                     header('Location:index.php');
                 }
                 echo 'successfully save : )';
+                // also store thumbnail image by cropping image functiion
+                // Path to the original image file
+                $originalImage = 'uploads/' . $filename;
+
+                // Load the original image
+                $sourceImage = imagecreatefromjpeg($originalImage);
+
+                // Define the crop dimensions
+                $cropWidth = 40;
+                $cropHeight = 30;
+
+                // Create a new cropped image with the specified dimensions
+                $croppedImage = imagecrop($sourceImage, ['x' => 0, 'y' => 0, 'width' => $cropWidth, 'height' => $cropHeight]);
+
+                if ($croppedImage !== false) {
+
+                    // create thumbnail folder
+                    $dir = 'thumbnails';
+
+                    // create new directory with 744 permissions if it does not exist yet
+                    // owner will be the user/group the PHP script is run under
+                    if (!file_exists($dir)) {
+                        mkdir($dir, 0744);
+                    }
+
+                    // Save the cropped image to a new file
+                    $croppedImagePath = 'thumbnails/' . $filename;
+                    imagejpeg($croppedImage, $croppedImagePath);
+
+                    // Free up memory
+                    imagedestroy($croppedImage);
+
+                    echo 'Image cropped and saved successfully.';
+                } else {
+                    echo 'Failed to crop the image.';
+                }
+
+                // Free up memory
+                imagedestroy($sourceImage);
             } else {
                 echo 'Error uploading';
             }

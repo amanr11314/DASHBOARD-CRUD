@@ -246,8 +246,8 @@ if ($result->num_rows > 0) {
                         <?php if (!empty($data['image'])) {?>
                         <button type="button" class="" data-toggle="modal"
                             data-target="#myPreviewModal<?=$data['id']?>">
-                            <img src="<?php echo "./uploads/" . $data['image'] ?>" alt="Image"
-                                style="width: 100px; height: 100px;"></button>
+                            <img src="<?php echo "./thumbnails/" . $data['image'] ?>" alt="Image"
+                                style="width: 40px; height: 30px;"></button>
                         <?php } else {?>
                         -
                         <?php }?>
@@ -304,7 +304,6 @@ if ($result->num_rows > 0) {
                     </div>
                 </div>
                 <!-- Change Password Modal -->
-                <!-- https://stackoverflow.com/questions/32055161/display-errors-on-modal-while-submitting-the-form -->
                 <?php $modalChangePasswordError = json_decode($_COOKIE['change_old_password'], true);?>
                 <div class="modal fade" id="modalChangePassword" tabindex="-1" role="dialog"
                     aria-labelledby="myModalLabel" aria-hidden="true">
