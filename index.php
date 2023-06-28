@@ -82,10 +82,6 @@ if ($_GET['action'] === 'delete' && isset($_GET['id'])) {
         font-size: 1em;
     }
 
-    .table-body {
-        overflow-y: scroll;
-    }
-
     .my-toast {
         position: fixed;
         z-index: 2;
@@ -93,12 +89,28 @@ if ($_GET['action'] === 'delete' && isset($_GET['id'])) {
         top: 1rem;
         width: fit-content;
     }
+
+    .custom-footer-fixed-bottom {
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+    }
+
+    .my-custom-scrollbar {
+        position: relative;
+        height: 500px;
+        overflow: auto;
+    }
+
+    .table-wrapper-scroll-y {
+        display: block;
+    }
     </style>
 
 
 </head>
 
-<body>
+<body class="bg-dark">
     <?php if ($_COOKIE['signedin'] == 'OK') {
 
     // show generic toast //
@@ -114,7 +126,7 @@ if ($_GET['action'] === 'delete' && isset($_GET['id'])) {
     </div>
     <?php } else if ($_GET['status'] == 'change-password-success') {
 
-    // show generic toast //
+    // show generic toast on password change success //
     ?>
     <div class="my-toast">
         <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -164,10 +176,11 @@ if ($_GET['action'] === 'delete' && isset($_GET['id'])) {
 
                             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuLink">
                                 <a class="dropdown-item" href="profile.php">Profile</a>
-                                <a class="dropdown-item" href="change_old_password.php">Change Password</a>
+                                <!-- <a class="dropdown-item" href="change_old_password.php">Change Password</a> -->
                                 <a href="" class="dropdown-item" data-toggle="modal"
                                     data-target="#modalChangePassword">Change Password</a>
                                 <a class="dropdown-item" href="logout.php">Logout</a>
+                                <a class="dropdown-item" href="logout.php">Crop Image</a>
                             </div>
                         </div>
 
@@ -178,7 +191,7 @@ if ($_GET['action'] === 'delete' && isset($_GET['id'])) {
         </div>
     </header>
 
-    <div class="table-body">
+    <div class="table-wrapper-scroll-y my-custom-scrollbar">
 
         <table class="table table-striped table-dark">
             <thead>
@@ -350,8 +363,6 @@ if ($result->num_rows > 0) {
                                             <button type="submit" name="submit" class="btn btn-primary">
                                                 Change Password
                                             </button>
-                                            <!-- <button type="button" class="btn btn-primary btn-change-password">Change -->
-                                            <!-- Password</button> -->
                                         </div>
                                     </div>
                                 </form>
@@ -364,7 +375,8 @@ if ($result->num_rows > 0) {
 
         </table>
     </div>
-    <footer class="navbar-fixed-bottom mt-auto py-3 bg-dark">
+    <!-- <footer class="navbar-fixed-bottom mt-auto py-3 bg-dark"> -->
+    <footer class="custom-footer-fixed-bottom py-3 bg-dark">
         <div class="d-flex flex-row justify-content-end mr-4">
             <!-- Default dropup button -->
             <div class="dropup">
@@ -427,8 +439,6 @@ $sql2 = "SELECT COUNT(*) as total FROM interns WHERE mentor=" . $_COOKIE['login'
                     <li class="page-item"><a class="page-link" href="#">
                             <?php echo $start_ . ' - ' . $end_ . ' of ' . $totalRows ?>
                         </a></li>
-                    <!-- <li class="page-item"><a class="page-link" href="#">2</a></li>
-                    <li class="page-item"><a class="page-link" href="#">3</a></li> -->
                     <?php if ($isNextPage) {?>
                     <li class="page-item">
                         <?php } else {?>
