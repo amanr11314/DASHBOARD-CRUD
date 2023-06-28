@@ -14,8 +14,11 @@ include "db_conn.php";
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
-        integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+        integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous"> -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+        integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/croppie/2.6.5/croppie.css" />
     <title>Edit User</title>
     <style>
     .action-btn {
@@ -183,16 +186,20 @@ if (isset($_POST["submit"])) {
                 </fieldset>
 
                 <div class="form-group row align-items-center">
-                    <div class="input-group mb-3">
+                    <div class="input-group mb-3 align-items-center">
                         <?php if (!(empty($_POST['image']))) {
     ?>
-                        <img class="rounded-circle" alt="avatar1" src="<?php echo "./uploads/" . $_POST['image'] ?>"
-                            alt="Image" style="width: 100px; height: 100px;">
+                        <img id="profileImage" class="rounded-circle col-sm-2 pt-0" alt="avatar1"
+                            src="<?php echo "./uploads/" . $_POST['image'] ?>" alt="Image"
+                            style="width: 100px; height: 100px;">
+                        <?php } else {?>
+                        <img id="profileImage" class="rounded-circle col-sm-2 pt-0" alt="avatar1" src="#" alt="Image"
+                            style="width: 100px; height: 100px;">
                         <?php }?>
                         <div class="col-sm-8">
-                            <input id="file_input" name='files' type="file" class="custom-file-input">
-                            <label class="custom-file-label" for="inputGroupFile02"
-                                aria-describedby="inputGroupFileAddon02">Update Image</label>
+                            <input accept="image/*" id="cover_image" name='files' type="file">
+                            <!-- <label class="custom-file-label" for="inputGroupFile02" -->
+                            <!-- aria-describedby="inputGroupFileAddon02">Update Image</label> -->
                         </div>
                     </div>
                 </div>
@@ -208,18 +215,128 @@ if (isset($_POST["submit"])) {
 
     </div>
 
+    <!-- This is the modal -->
+    <div class="modal" tabindex="-1" role="dialog" id="uploadimageModal">
+        <div class="modal-dialog" role="document" style="min-width: 700px">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Modal title</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12 text-center">
+                            <div id="image_demo"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary crop_image">
+                        Crop and Save
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
 
 
 
-    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
-        integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous">
+
+    <script src="https://code.jquery.com/jquery-3.5.1.js"
+        integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
     </script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
         integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous">
     </script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
-        integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous">
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"
+        integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous">
+    </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/croppie/2.6.5/croppie.js"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <script>
+    var getUrlParameter = function getUrlParameter(sParam) {
+        var sPageURL = window.location.search.substring(1),
+            sURLVariables = sPageURL.split('&'),
+            sParameterName,
+            i;
+
+        for (i = 0; i < sURLVariables.length; i++) {
+            sParameterName = sURLVariables[i].split('=');
+
+            if (sParameterName[0] === sParam) {
+                return sParameterName[1] === undefined ? true : decodeURIComponent(sParameterName[1]);
+            }
+        }
+        return false;
+    };
+
+
+    /// Initializing croppie in my image_demo div
+    var image_crop = $("#image_demo").croppie({
+        enableExif: true,
+        enableOrientation: true,
+        viewport: {
+            width: 200,
+            height: 200,
+            type: "circle",
+        },
+        boundary: {
+            width: 300,
+            height: 300,
+        },
+    });
+    /// catching up the cover_image change event and binding the image into my croppie. Then show the modal.
+    $("#cover_image").on("change", function() {
+        var reader = new FileReader();
+        reader.onload = function(event) {
+            image_crop.croppie("bind", {
+                url: event.target.result,
+            }).then(function() {
+                console.log("jQuery bind complete");
+            });
+        };
+        reader.readAsDataURL(this.files[0]);
+        $("#uploadimageModal").modal("show");
+    });
+
+    /// Get button click event and get the current crop image
+    $(".crop_image").on("click", function(event) {
+        image_crop
+            .croppie("result", {
+                type: "canvas",
+                size: "viewport",
+            })
+            .then(function(img) {
+                console.log('calling ajax request');
+                $.ajax({
+                    url: "croppie2.php",
+                    type: "POST",
+                    data: {
+                        image: img,
+                        id: getUrlParameter('id')
+                    },
+                    success: function(data) {
+                        console.log(data);
+                        // new cropped image url
+                        const new_img = './uploads/' + data['image_name'];
+                        $('#profileImage').attr('src', new_img);
+                    },
+                    error: function(xhr, status, error) {
+                        // there was an error
+                        const errors = xhr.responseJSON;
+                        console.log(errors)
+                    }
+                });
+            });
+        $("#uploadimageModal").modal("hide");
+    });
     </script>
 
 </body>

@@ -1,5 +1,4 @@
 <?php
-// setcookie('old_password_error', 'check old password', time() + 60 * 60 * 24 * 1, '/');
 header('Content-Type: application/json; charset=utf-8');
 include "db_conn.php";
 $success = true;
