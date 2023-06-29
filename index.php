@@ -75,6 +75,8 @@ if ($_GET['action'] === 'delete' && isset($_GET['id'])) {
         integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
 
+    <link rel="stylesheet" href="style.css">
+
 
     <title>Dashboard</title>
     <style>
@@ -113,11 +115,11 @@ if ($_GET['action'] === 'delete' && isset($_GET['id'])) {
 <body class="bg-dark">
     <?php if ($_COOKIE['signedin'] == 'OK') {
 
-    // show generic toast //
-    setcookie('signedin', '', time() - 60, '/');
+        // show generic toast //
+        setcookie('signedin', '', time() - 60, '/');
     ?>
     <div class="my-toast">
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <div class="alert alert-success alert-dismissible toast-animation" role="alert">
             Login Success
             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
@@ -126,17 +128,17 @@ if ($_GET['action'] === 'delete' && isset($_GET['id'])) {
     </div>
     <?php } else if ($_GET['status'] == 'change-password-success') {
 
-    // show generic toast on password change success //
+        // show generic toast on password change success //
     ?>
     <div class="my-toast">
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <div class="alert alert-success alert-dismissible toast-animation" role="alert">
             "Congratulations! Your password has been changed.";
             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
             </button>
         </div>
     </div>
-    <?php }?>
+    <?php } ?>
     <header>
         <div class="content-wrapper">
             <div>
@@ -162,14 +164,14 @@ if ($_GET['action'] === 'delete' && isset($_GET['id'])) {
                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 
 
-                                <?php if (!empty($_COOKIE['image'])) {?>
+                                <?php if (!empty($_COOKIE['image'])) { ?>
                                 <img src="<?php echo "./uploads/" . $_COOKIE['image'] ?>" class="rounded-circle"
                                     alt="Avatar" width="40" height="40">
 
-                                <?php } else {?>
+                                <?php } else { ?>
                                 <img src="./uploads/default_user.jpg" class="rounded-circle" alt="Avatar" width="40"
                                     height="40">
-                                <?php }?>
+                                <?php } ?>
                             </a>
 
 
@@ -217,50 +219,50 @@ if ($_GET['action'] === 'delete' && isset($_GET['id'])) {
             <tbody>
                 <?php
 
-// Display employees in table
-$sql = "SELECT * FROM interns WHERE";
-if (isset($_POST["search"])) {
-    $query = $_POST['query'];
-    $query = trim($query);
-    $query = stripslashes($query);
-    $query = htmlspecialchars($query);
-    $sql = $sql . " concat( `username`, `email` ) LIKE '%$query%'";
-    $sql = $sql . " AND mentor=" . $_COOKIE['login'];
-} else {
-    $sql = $sql . " mentor=" . $_COOKIE['login'];
-}
-$offset = ($offset - 1) * $limit;
-$sql = $sql . " ORDER BY $sortColumn " . getOrder(getSortOrder());
-$sql = $sql . " LIMIT " . $offset . ',' . $limit;
-$result = $conn->query($sql);
-if ($result->num_rows > 0) {
-    while ($data = $result->fetch_assoc()) {
-        ?>
+                // Display employees in table
+                $sql = "SELECT * FROM interns WHERE";
+                if (isset($_POST["search"])) {
+                    $query = $_POST['query'];
+                    $query = trim($query);
+                    $query = stripslashes($query);
+                    $query = htmlspecialchars($query);
+                    $sql = $sql . " concat( `username`, `email` ) LIKE '%$query%'";
+                    $sql = $sql . " AND mentor=" . $_COOKIE['login'];
+                } else {
+                    $sql = $sql . " mentor=" . $_COOKIE['login'];
+                }
+                $offset = ($offset - 1) * $limit;
+                $sql = $sql . " ORDER BY $sortColumn " . getOrder(getSortOrder());
+                $sql = $sql . " LIMIT " . $offset . ',' . $limit;
+                $result = $conn->query($sql);
+                if ($result->num_rows > 0) {
+                    while ($data = $result->fetch_assoc()) {
+                ?>
                 <tr>
                     <td class="text-center" scope="row"> <?php echo $data['id']; ?></td>
                     <td class="text-center"><?php echo $data['username']; ?> </td>
                     <td class="text-center"><?php echo $data['email']; ?> </td>
                     <td class="text-center"><?php echo ucfirst($data['gender']); ?> </td>
                     <td class="text-center">
-                        <?php if (!empty($data['image'])) {?>
-                        <a type="button" class="" data-toggle="modal" data-target="#myPreviewModal<?=$data['id']?>">
+                        <?php if (!empty($data['image'])) { ?>
+                        <a type="button" class="" data-toggle="modal" data-target="#myPreviewModal<?= $data['id'] ?>">
                             <img class="rounded-circle" src="<?php echo "./thumbnails/" . $data['image'] ?>" alt="Image"
                                 style="width: 40px; height: 30px;"></a>
-                        <?php } else {?>
+                        <?php } else { ?>
                         -
-                        <?php }?>
+                        <?php } ?>
                     </td>
                     <td class="text-center">
                         <div class="btn-group" role="group" aria-label="Basic example">
                             <a href="edit.php?id=<?php echo $data['id']; ?>"
                                 class="mr-3 btn btn-primary action-btn">Edit</a>
                             <button type="button" class="btn btn-danger" data-toggle="modal"
-                                data-target="#myModal<?=$data['id']?>">Delete</button>
+                                data-target="#myModal<?= $data['id'] ?>">Delete</button>
                         </div>
                     </td>
                 </tr>
                 <!-- Delete Confirmation Modal -->
-                <div class="modal fade" id="myModal<?=$data['id']?>" tabindex="-1" role="dialog"
+                <div class="modal fade" id="myModal<?= $data['id'] ?>" tabindex="-1" role="dialog"
                     aria-labelledby="myModalLabel" aria-hidden="true">
                     <div class="modal-dialog" role="document">
                         <div class="modal-content">
@@ -283,7 +285,7 @@ if ($result->num_rows > 0) {
                     </div>
                 </div>
                 <!-- Image Preview Modal -->
-                <div class="modal fade" id="myPreviewModal<?=$data['id']?>" tabindex="-1" role="dialog"
+                <div class="modal fade" id="myPreviewModal<?= $data['id'] ?>" tabindex="-1" role="dialog"
                     aria-labelledby="myPreviewModalLabel" aria-hidden="true">
                     <div class="modal-dialog" role="document">
                         <div class="modal-content">
@@ -302,7 +304,7 @@ if ($result->num_rows > 0) {
                     </div>
                 </div>
                 <!-- Change Password Modal -->
-                <?php $modalChangePasswordError = json_decode($_COOKIE['change_old_password'], true);?>
+                <?php $modalChangePasswordError = json_decode($_COOKIE['change_old_password'], true); ?>
                 <div class="modal fade" id="modalChangePassword" tabindex="-1" role="dialog"
                     aria-labelledby="myModalLabel" aria-hidden="true">
                     <div class="modal-dialog" role="document">
@@ -366,8 +368,8 @@ if ($result->num_rows > 0) {
                             </div>
                         </div>
                         <?php
-}
-    ?>
+                        }
+                            ?>
             </tbody>
 
         </table>
@@ -383,50 +385,50 @@ if ($result->num_rows > 0) {
                 </a>
                 <div class="dropdown-menu dropdown-menu-right">
                     <a class="<?php if ($limit == 3) {
-        echo 'dropdown-item active';
-    } else {
-        echo 'dropdown-item';
-    }?>" href="index.php?limit=3">3</a>
+                                    echo 'dropdown-item active';
+                                } else {
+                                    echo 'dropdown-item';
+                                } ?>" href="index.php?limit=3">3</a>
                     <a class="<?php if ($limit == 5) {
-        echo 'dropdown-item active';
-    } else {
-        echo 'dropdown-item';
-    }?>" href="
+                                    echo 'dropdown-item active';
+                                } else {
+                                    echo 'dropdown-item';
+                                } ?>" href="
                         index.php?limit=5">5</a>
                     <a class="<?php if ($limit == 10) {
-        echo 'dropdown-item active';
-    } else {
-        echo 'dropdown-item';
-    }?>" href="
+                                    echo 'dropdown-item active';
+                                } else {
+                                    echo 'dropdown-item';
+                                } ?>" href="
                         index.php?limit=10">10</a>
                 </div>
             </div>
             <nav aria-label="Pagination" class="mx-4">
                 <ul class="pagination pagination-dark">
                     <?php
-$sql2 = "SELECT COUNT(*) as total FROM interns WHERE mentor=" . $_COOKIE['login'];
-    $result2 = $conn->query($sql2);
-    if ($result2->num_rows > 0) {
-        $row_ = $result2->fetch_assoc();
-        $total = ($row_['total']);
-        // print
-    }
-    $totalRows = intval($total);
-    $totalPages = intval($totalRows / $limit);
-    $previousPage = intval($currentPage) - 1;
-    $nextPage = intval($currentPage) + 1;
-    $end_ = $limit * intval($currentPage);
-    $start_ = $end_ - $limit + 1;
-    $isNextPage = $end_ < $totalRows;
-    if ($end_ > $totalRows) {
-        $end_ = $totalRows;
-    }
+                    $sql2 = "SELECT COUNT(*) as total FROM interns WHERE mentor=" . $_COOKIE['login'];
+                    $result2 = $conn->query($sql2);
+                    if ($result2->num_rows > 0) {
+                        $row_ = $result2->fetch_assoc();
+                        $total = ($row_['total']);
+                        // print
+                    }
+                    $totalRows = intval($total);
+                    $totalPages = intval($totalRows / $limit);
+                    $previousPage = intval($currentPage) - 1;
+                    $nextPage = intval($currentPage) + 1;
+                    $end_ = $limit * intval($currentPage);
+                    $start_ = $end_ - $limit + 1;
+                    $isNextPage = $end_ < $totalRows;
+                    if ($end_ > $totalRows) {
+                        $end_ = $totalRows;
+                    }
 
-    if ($previousPage > 0) {?>
+                    if ($previousPage > 0) { ?>
                     <li class="page-item">
-                        <?php } else {?>
+                        <?php } else { ?>
                     <li class="page-item disabled">
-                        <?php }?>
+                        <?php } ?>
                         <a class="page-link" href="<?php echo 'index.php?limit=' . $limit . '&page=' . $previousPage ?>"
                             aria-label="Previous">
                             <span aria-hidden="true">&laquo;</span>
@@ -436,11 +438,11 @@ $sql2 = "SELECT COUNT(*) as total FROM interns WHERE mentor=" . $_COOKIE['login'
                     <li class="page-item"><a class="page-link" href="#">
                             <?php echo $start_ . ' - ' . $end_ . ' of ' . $totalRows ?>
                         </a></li>
-                    <?php if ($isNextPage) {?>
+                    <?php if ($isNextPage) { ?>
                     <li class="page-item">
-                        <?php } else {?>
+                        <?php } else { ?>
                     <li class="page-item disabled">
-                        <?php }?>
+                        <?php } ?>
                         <a class="page-link" href="<?php echo 'index.php?limit=' . $limit . '&page=' . $nextPage ?>"
                             aria-label="Next">
                             <span aria-hidden="true">&raquo;</span>
@@ -452,9 +454,9 @@ $sql2 = "SELECT COUNT(*) as total FROM interns WHERE mentor=" . $_COOKIE['login'
         </div>
     </footer>
     <?php
-} else {
-    echo "0 results";
-}
+                } else {
+                    echo "0 results";
+                }
 ?>
     <!-- <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
     </script>
@@ -472,7 +474,7 @@ $sql2 = "SELECT COUNT(*) as total FROM interns WHERE mentor=" . $_COOKIE['login'
         setTimeout(function() {
             toast = document.querySelector('.close');
             toast.click();
-        }, 2500)
+        }, 2400)
 
         // for modal change password
         $('.modal-body form').submit(function(event) {

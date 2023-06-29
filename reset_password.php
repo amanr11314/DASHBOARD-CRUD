@@ -1,4 +1,5 @@
 <?php
+
 use PHPMailer\PHPMailer\Exception;
 use PHPMailer\PHPMailer\PHPMailer;
 // Start the session
@@ -20,7 +21,7 @@ include 'db_conn.php';
         integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css"
         integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
-
+    <link rel="stylesheet" href="style.css">
     <title>Reset Pasword</title>
     <style>
     html,
@@ -69,88 +70,87 @@ include 'db_conn.php';
 
 <body>
     <?php
-if (isset($_POST["reset"])) {
-    include "db_conn.php";
-    $email = $_POST['email'];
-    $errors = array();
-    if (empty($_POST["email"])) {
-        $errors['email'] = "Email is Required";
-    } else {
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $errors['email'] = "Invalid email format";
-        }
-    }
-    if (empty($errors)) {
-        $sql = "SELECT * FROM employee WHERE email='" . $_POST['email'] . "';";
-        $result = $conn->query($sql);
-        // account found
-        if ($result->num_rows > 0) {
-            print_r('account found');
-            $row = $result->fetch_assoc();
-            $token = md5($_POST['email']) . rand(10, 9999);
-            $reset_token_status = 0;
-            $redirect_url = 'localhost/change_password.php?key=' . $_POST['email'] . '&reset_token=' . $token;
-            $id = $row['id'];
-            $body_ = "<a href =" . $redirect_url . ">Reset Password</a>";
-
-            // UPDATE token and token_status in DB
-            $sql = "UPDATE employee SET reset_token_status='$reset_token_status',password_reset_link='$token' WHERE id='$id'";
-
-            try {
-                $conn->query($sql);
-
-            } catch (Exception $ex) {
-                print_r($sql);
-                print_r($ex->getMessage());
-            }
-
-            /** Send mail */
-
-            // Include PHPMailer classes
-
-            require 'PHPMailer/src/Exception.php';
-            require 'PHPMailer/src/PHPMailer.php';
-            require 'PHPMailer/src/SMTP.php';
-            $mail = new PHPMailer(true);
-
-            try {
-                // Set the SMTP configuration
-                $mail->isSMTP();
-                $mail->Host = 'smtp.gmail.com';
-                $mail->Port = 587; // or the appropriate port for your SMTP server
-                $mail->SMTPAuth = true;
-                $mail->Username = 'testmanager.e.123@gmail.com';
-                $mail->Password = 'iyypuilmkcbgobow';
-
-                // Set the sender and recipient
-                $mail->setFrom('testmanager.e.123@gmail.com', 'Test Manager');
-                $username_ = explode('@', $email)[0];
-                $mail->addAddress($email, $username_);
-
-                // Set the email subject and message
-                $mail->Subject = 'Reset Password';
-
-                $mail->isHTML(true);
-                $mail->Body = sprintf($body_);
-
-                // Send the email
-                if ($mail->send()) {
-                    print_r('Email sent successfully!');
-                    print_r($body_);
-                    header('Location:reset_password.php?status=sent-link');
-                    die();
-                }
-            } catch (Exception $e) {
-                print_r($body);
-                echo 'Failed to send email. Error: ' . $mail->ErrorInfo . $e->getMessage();
-            }
-            /** Send mail end */
+    if (isset($_POST["reset"])) {
+        include "db_conn.php";
+        $email = $_POST['email'];
+        $errors = array();
+        if (empty($_POST["email"])) {
+            $errors['email'] = "Email is Required";
         } else {
-            // raise error no account exists
+            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                $errors['email'] = "Invalid email format";
+            }
         }
-    }
+        if (empty($errors)) {
+            $sql = "SELECT * FROM employee WHERE email='" . $_POST['email'] . "';";
+            $result = $conn->query($sql);
+            // account found
+            if ($result->num_rows > 0) {
+                print_r('account found');
+                $row = $result->fetch_assoc();
+                $token = md5($_POST['email']) . rand(10, 9999);
+                $reset_token_status = 0;
+                $redirect_url = 'localhost/change_password.php?key=' . $_POST['email'] . '&reset_token=' . $token;
+                $id = $row['id'];
+                $body_ = "<a href =" . $redirect_url . ">Reset Password</a>";
 
-    /*
+                // UPDATE token and token_status in DB
+                $sql = "UPDATE employee SET reset_token_status='$reset_token_status',password_reset_link='$token' WHERE id='$id'";
+
+                try {
+                    $conn->query($sql);
+                } catch (Exception $ex) {
+                    print_r($sql);
+                    print_r($ex->getMessage());
+                }
+
+                /** Send mail */
+
+                // Include PHPMailer classes
+
+                require 'PHPMailer/src/Exception.php';
+                require 'PHPMailer/src/PHPMailer.php';
+                require 'PHPMailer/src/SMTP.php';
+                $mail = new PHPMailer(true);
+
+                try {
+                    // Set the SMTP configuration
+                    $mail->isSMTP();
+                    $mail->Host = 'smtp.gmail.com';
+                    $mail->Port = 587; // or the appropriate port for your SMTP server
+                    $mail->SMTPAuth = true;
+                    $mail->Username = 'testmanager.e.123@gmail.com';
+                    $mail->Password = 'iyypuilmkcbgobow';
+
+                    // Set the sender and recipient
+                    $mail->setFrom('testmanager.e.123@gmail.com', 'Test Manager');
+                    $username_ = explode('@', $email)[0];
+                    $mail->addAddress($email, $username_);
+
+                    // Set the email subject and message
+                    $mail->Subject = 'Reset Password';
+
+                    $mail->isHTML(true);
+                    $mail->Body = sprintf($body_);
+
+                    // Send the email
+                    if ($mail->send()) {
+                        print_r('Email sent successfully!');
+                        print_r($body_);
+                        header('Location:reset_password.php?status=sent-link');
+                        die();
+                    }
+                } catch (Exception $e) {
+                    print_r($body);
+                    echo 'Failed to send email. Error: ' . $mail->ErrorInfo . $e->getMessage();
+                }
+                /** Send mail end */
+            } else {
+                // raise error no account exists
+            }
+        }
+
+        /*
 if (empty($errors)) {
 $sql = "SELECT * FROM employee WHERE email='" . $_POST['email'] . "'";
 $result = $conn->query($sql);
@@ -191,19 +191,19 @@ $errors['msg'] = "Account does not exist";
 }
 }
  */
-}
-?>
+    }
+    ?>
     <?php if ($_GET['status'] == 'sent-link') {
     ?>
     <div class="my-toast">
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <div class="alert alert-success alert-dismissible toast-animation" role="alert">
             Email sent, please click on link to verify
             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
             </button>
         </div>
     </div>
-    <?php }?>
+    <?php } ?>
 
     <div class="global-container">
         <div class="card login-form">
@@ -214,9 +214,10 @@ $errors['msg'] = "Account does not exist";
                         <div class="form-group">
                             <label for="exampleInputEmail1">Email address</label>
                             <input name="email" type="email" class="form-control form-control-sm"
-                                id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Email" value="<?php if (isset($_POST["email"])) {
-    echo $_POST["email"];
-}?>" ">
+                                id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Email"
+                                value="<?php if (isset($_POST["email"])) {
+                                                                                                                                                                                        echo $_POST["email"];
+                                                                                                                                                                                    } ?>" ">
                             <span class=" text-danger"><?php echo $errors['email']; ?></span>
                         </div>
 
@@ -248,7 +249,7 @@ $errors['msg'] = "Account does not exist";
             </div>
         </div>
     </div>
-    <?php }?>
+    <?php } ?>
 
     <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
         integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous">

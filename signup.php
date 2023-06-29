@@ -84,176 +84,176 @@ include "db_conn.php";
 <body>
     <?php
 
-if (isset($_POST["submit"])) {
-    include "db_conn.php";
-    $username = $_POST['username'];
-    $email = $_POST['email'];
-    $gender = $_POST['gender'];
-    $password1 = $_POST['password1'];
-    $password2 = $_POST['password2'];
-    $img_name = $_POST['img_name'];
+    if (isset($_POST["submit"])) {
+        include "db_conn.php";
+        $username = $_POST['username'];
+        $email = $_POST['email'];
+        $gender = $_POST['gender'];
+        $password1 = $_POST['password1'];
+        $password2 = $_POST['password2'];
+        $img_name = $_POST['img_name'];
 
-    include "validation.php";
+        include "validation.php";
 
-    if ($password1 !== $password2) {
-        $errors['password'] = "Password do not match";
-    } else if (strlen($password1) < 6) {
-        $errors['password'] = "Password should be minimum of 6 characters";
-    } else if (strlen($password1) >= 6) {
-        $cap = preg_match('/[A-Z]/', $password1);
-        $spe = preg_match('/[!@#$%^&*()]/', $password1);
-        $num = preg_match('/[0-9]/', $password1);
-        if ($cap && $spe && $num) {
-            // for existing account with this email
-            include "backend_validation.php";
-            // hased password
-            $_password = password_hash($password1, PASSWORD_DEFAULT);
-            if (empty($errors)) {
-                $name = $_FILES["files"]["name"];
-                $tmp_name = $_FILES['files']['tmp_name'];
+        if ($password1 !== $password2) {
+            $errors['password'] = "Password do not match";
+        } else if (strlen($password1) < 6) {
+            $errors['password'] = "Password should be minimum of 6 characters";
+        } else if (strlen($password1) >= 6) {
+            $cap = preg_match('/[A-Z]/', $password1);
+            $spe = preg_match('/[!@#$%^&*()]/', $password1);
+            $num = preg_match('/[0-9]/', $password1);
+            if ($cap && $spe && $num) {
+                // for existing account with this email
+                include "backend_validation.php";
+                // hased password
+                $_password = password_hash($password1, PASSWORD_DEFAULT);
+                if (empty($errors)) {
+                    $name = $_FILES["files"]["name"];
+                    $tmp_name = $_FILES['files']['tmp_name'];
 
-                // Send email vaiables
-                $token = md5($_POST['email']) . rand(10, 9999);
-                $status = 0;
-                $redirect_url = 'localhost/email_verification.php?key=' . $_POST['email'] . '&token=' . $token;
-                $testuser = $_POST['username'];
-                $link = "<a href=\'" . $redirect_url . "\'>Click and Verify Email</a>";
+                    // Send email vaiables
+                    $token = md5($_POST['email']) . rand(10, 9999);
+                    $status = 0;
+                    $redirect_url = 'localhost/email_verification.php?key=' . $_POST['email'] . '&token=' . $token;
+                    $testuser = $_POST['username'];
+                    $link = "<a href=\'" . $redirect_url . "\'>Click and Verify Email</a>";
 
-                if (!empty($img_name)) {
+                    if (!empty($img_name)) {
 
-                    // Insert into DB
-                    $sql = "INSERT INTO employee (username, email, gender, image, password, status, email_verification_link) VALUES ('$testuser','$email','$gender', '$img_name', '$_password', $status, '$token')";
+                        // Insert into DB
+                        $sql = "INSERT INTO employee (username, email, gender, image, password, status, email_verification_link) VALUES ('$testuser','$email','$gender', '$img_name', '$_password', $status, '$token')";
 
-                    try {
-                        $conn->query($sql);
-                    } catch (Exception $ex) {
-                        print_r($sql);
-                        print_r($ex->getMessage());
-                    }
-                    // include "send_email.php";
-
-                    // $subject_ = 'Email Verification';
-                    $body_ = "<a href =" . $redirect_url . ">www.example.com</a>";
-
-                    /** Send mail */
-
-                    // Include PHPMailer classes
-
-                    require 'PHPMailer/src/Exception.php';
-                    require 'PHPMailer/src/PHPMailer.php';
-                    require 'PHPMailer/src/SMTP.php';
-                    $mail = new PHPMailer(true);
-
-                    try {
-                        // Set the SMTP configuration
-                        $mail->isSMTP();
-                        $mail->Host = 'smtp.gmail.com';
-                        $mail->Port = 587; // or the appropriate port for your SMTP server
-                        $mail->SMTPAuth = true;
-                        $mail->Username = 'testmanager.e.123@gmail.com';
-                        $mail->Password = 'iyypuilmkcbgobow';
-
-                        // Set the sender and recipient
-                        $mail->setFrom('testmanager.e.123@gmail.com', 'Test Manager');
-                        $mail->addAddress($email, $username);
-
-                        // Set the email subject and message
-                        $mail->Subject = 'Email Verification';
-
-                        $mail->isHTML(true);
-                        $mail->Body = sprintf($body_);
-
-                        // Send the email
-                        if ($mail->send()) {
-                            print_r('Email sent successfully!');
-                            setcookie('signup', 'OK', time() + 100, '/');
-                            header('Location:login.php');
-                            die();
+                        try {
+                            $conn->query($sql);
+                        } catch (Exception $ex) {
+                            print_r($sql);
+                            print_r($ex->getMessage());
                         }
-                    } catch (Exception $e) {
-                        print_r($body);
-                        echo 'Failed to send email. Error: ' . $mail->ErrorInfo . $e->getMessage();
-                    }
-                    /** Send mail end */
+                        // include "send_email.php";
 
-                    echo 'successfully save : )';
-                } else {
-                    // Insert into DB
-                    $sql = "INSERT INTO employee (username, email, gender, password, status, email_verification_link) VALUES ('$testuser','$email','$gender', '$_password', $status, '$token')";
+                        // $subject_ = 'Email Verification';
+                        $body_ = "<a href =" . $redirect_url . ">www.example.com</a>";
 
-                    try {
-                        $conn->query($sql);
-                    } catch (Exception $ex) {
-                        print_r($sql);
-                        print_r($ex->getMessage());
-                    }
+                        /** Send mail */
 
-                    $body_ = "<a href =" . $redirect_url . ">www.example.com</a>";
+                        // Include PHPMailer classes
 
-                    /** Send mail */
+                        require 'PHPMailer/src/Exception.php';
+                        require 'PHPMailer/src/PHPMailer.php';
+                        require 'PHPMailer/src/SMTP.php';
+                        $mail = new PHPMailer(true);
 
-                    // Include PHPMailer classes
+                        try {
+                            // Set the SMTP configuration
+                            $mail->isSMTP();
+                            $mail->Host = 'smtp.gmail.com';
+                            $mail->Port = 587; // or the appropriate port for your SMTP server
+                            $mail->SMTPAuth = true;
+                            $mail->Username = 'testmanager.e.123@gmail.com';
+                            $mail->Password = 'iyypuilmkcbgobow';
 
-                    require 'PHPMailer/src/Exception.php';
-                    require 'PHPMailer/src/PHPMailer.php';
-                    require 'PHPMailer/src/SMTP.php';
-                    $mail = new PHPMailer(true);
+                            // Set the sender and recipient
+                            $mail->setFrom('testmanager.e.123@gmail.com', 'Test Manager');
+                            $mail->addAddress($email, $username);
 
-                    try {
-                        // Set the SMTP configuration
-                        $mail->isSMTP();
-                        $mail->Host = 'smtp.gmail.com';
-                        $mail->Port = 587; // or the appropriate port for your SMTP server
-                        $mail->SMTPAuth = true;
-                        $mail->Username = 'testmanager.e.123@gmail.com';
-                        $mail->Password = 'iyypuilmkcbgobow';
+                            // Set the email subject and message
+                            $mail->Subject = 'Email Verification';
 
-                        // Set the sender and recipient
-                        $mail->setFrom('testmanager.e.123@gmail.com', 'Test Manager');
-                        $mail->addAddress($email, $username);
+                            $mail->isHTML(true);
+                            $mail->Body = sprintf($body_);
 
-                        // Set the email subject and message
-                        $mail->Subject = 'Email Verification';
-
-                        $mail->isHTML(true);
-                        $mail->Body = sprintf($body_);
-
-                        // Send the email
-                        if ($mail->send()) {
-                            print_r('Email sent successfully!');
-                            print_r($body_);
-                            setcookie('signup', 'OK', time() + 100, '/');
-                            header('Location:login.php');
-                            die();
+                            // Send the email
+                            if ($mail->send()) {
+                                print_r('Email sent successfully!');
+                                setcookie('signup', 'OK', time() + 100, '/');
+                                header('Location:login.php');
+                                die();
+                            }
+                        } catch (Exception $e) {
+                            print_r($body);
+                            echo 'Failed to send email. Error: ' . $mail->ErrorInfo . $e->getMessage();
                         }
-                    } catch (Exception $e) {
-                        print_r($body);
-                        echo 'Failed to send email. Error: ' . $mail->ErrorInfo . $e->getMessage();
+                        /** Send mail end */
+
+                        echo 'successfully save : )';
+                    } else {
+                        // Insert into DB
+                        $sql = "INSERT INTO employee (username, email, gender, password, status, email_verification_link) VALUES ('$testuser','$email','$gender', '$_password', $status, '$token')";
+
+                        try {
+                            $conn->query($sql);
+                        } catch (Exception $ex) {
+                            print_r($sql);
+                            print_r($ex->getMessage());
+                        }
+
+                        $body_ = "<a href =" . $redirect_url . ">www.example.com</a>";
+
+                        /** Send mail */
+
+                        // Include PHPMailer classes
+
+                        require 'PHPMailer/src/Exception.php';
+                        require 'PHPMailer/src/PHPMailer.php';
+                        require 'PHPMailer/src/SMTP.php';
+                        $mail = new PHPMailer(true);
+
+                        try {
+                            // Set the SMTP configuration
+                            $mail->isSMTP();
+                            $mail->Host = 'smtp.gmail.com';
+                            $mail->Port = 587; // or the appropriate port for your SMTP server
+                            $mail->SMTPAuth = true;
+                            $mail->Username = 'testmanager.e.123@gmail.com';
+                            $mail->Password = 'iyypuilmkcbgobow';
+
+                            // Set the sender and recipient
+                            $mail->setFrom('testmanager.e.123@gmail.com', 'Test Manager');
+                            $mail->addAddress($email, $username);
+
+                            // Set the email subject and message
+                            $mail->Subject = 'Email Verification';
+
+                            $mail->isHTML(true);
+                            $mail->Body = sprintf($body_);
+
+                            // Send the email
+                            if ($mail->send()) {
+                                print_r('Email sent successfully!');
+                                print_r($body_);
+                                setcookie('signup', 'OK', time() + 100, '/');
+                                header('Location:login.php');
+                                die();
+                            }
+                        } catch (Exception $e) {
+                            print_r($body);
+                            echo 'Failed to send email. Error: ' . $mail->ErrorInfo . $e->getMessage();
+                        }
+                        /** Send mail end */
                     }
-                    /** Send mail end */
                 }
+                // ENCODE PASSWORD AND INSERT
+            } else {
+                echo $cap;
+                echo $spe;
+                echo $num;
+                $errors['password'] = "Password must contain uppercase, special chracters and numbers";
             }
-            // ENCODE PASSWORD AND INSERT
-        } else {
-            echo $cap;
-            echo $spe;
-            echo $num;
-            $errors['password'] = "Password must contain uppercase, special chracters and numbers";
         }
     }
-}
-?>
+    ?>
     <div class="global-container">
         <div class="mx-4 mt-4 col-sm-10">
             <div class="card login-form1">
                 <div class="card-body">
                     <h3 class="card-title text-center">Sign Up</h3>
                     <div class="card-text">
-                        <?php if (!empty($errors['msg'])) {?>
+                        <?php if (!empty($errors['msg'])) { ?>
                         <div class="alert alert-danger alert-dismissible fade show" role="alert">
                             <?php
-echo $errors['msg'];
-} ?></div>
+                            echo $errors['msg'];
+                        } ?></div>
                         <form method="POST" enctype="multipart/form-data"
                             action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
                             <label for="id" class="text-danger col-form-label">* Required field</label>
@@ -298,20 +298,22 @@ echo $errors['msg'];
                                     <div class="col-sm-10">
                                         <div class="form-check">
                                             <input class="form-check-input" type="radio" name="gender" id="gridRadios1"
-                                                value="male" <?php if (isset($_POST['gender']) && $_POST['gender'] == "male") {
-    echo "checked";
-}
-?>>
+                                                value="male"
+                                                <?php if (isset($_POST['gender']) && $_POST['gender'] == "male") {
+                                                                                                                                                echo "checked";
+                                                                                                                                            }
+                                                                                                                                            ?>>
                                             <label class="form-check-label" for="gridRadios1">
                                                 Male
                                             </label>
                                         </div>
                                         <div class="form-check">
                                             <input class="form-check-input" type="radio" name="gender" id="gridRadios2"
-                                                value="female" <?php if (isset($_POST['gender']) && $_POST['gender'] == "female") {
-    echo "checked";
-}
-?>>
+                                                value="female"
+                                                <?php if (isset($_POST['gender']) && $_POST['gender'] == "female") {
+                                                                                                                                                echo "checked";
+                                                                                                                                            }
+                                                                                                                                            ?>>
                                             <label class="form-check-label" for="gridRadios2">
                                                 Female
                                             </label>
@@ -320,12 +322,17 @@ echo $errors['msg'];
                                     </div>
                                 </div>
                             </fieldset>
-                            <div class="form-group">
-                                <div class="input-group mb-3">
-                                    <img id="profileImage" class="rounded-circle col-sm-2 pt-0" alt="avatar1" src="#"
-                                        alt="Image" style="width: 100px; height: 100px;">
-                                    <div class="col-sm-8">
-                                        <input accept="image/*" id="cover_image" name='files' type="file">
+                            <div class="form-group row align-items-center">
+                                <div class="input-group mb-3 align-items-center">
+                                    <legend class="control-label col-form-label col-sm-2 pt-0">Image</legend>
+
+                                    <div class="col-sm-10">
+                                        <input accept="image/*" class="col-sm-8 pl-0" id="cover_image" name='files'
+                                            type="file">
+                                        <!-- show image-preview before upload -->
+                                        <output id="profileImage"></output>
+                                        <!-- <img id="profileImage" class="rounded-circle col-sm-2 pt-0" alt="avatar1"
+                                            src="#" alt="Image" style="width: 100px; height: 100px;"> -->
                                         <input id="imageName" type="text" hidden name="img_name" value="">
                                         <input id="userType" hidden type="text" name="type"
                                             value=<?php echo $_POST['type']; ?>>
@@ -448,7 +455,11 @@ echo $errors['msg'];
                         console.log(data);
                         // new cropped image url
                         const new_img = './uploads/' + data['image_name'];
-                        $('#profileImage').attr('src', new_img);
+                        var div = document.createElement('div');
+                        div.innerHTML = '<img style="width: 100px;" src="' + new_img + '" />';
+
+                        $('#profileImage').append(div);
+                        // $('#profileImage').attr('src', new_img);
                         $('#imageName').val(data['image_name']);
                     },
                     error: function(xhr, status, error) {

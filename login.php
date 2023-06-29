@@ -17,7 +17,7 @@ if (!(empty($_COOKIE['login']) || $_COOKIE['login'] == '')) {
         integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css"
         integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
-
+    <link rel="stylesheet" href="style.css">
     <title>LogIn</title>
     <style>
     .action-btn {
@@ -81,116 +81,117 @@ if (!(empty($_COOKIE['login']) || $_COOKIE['login'] == '')) {
 
 <body>
     <?php
-if (isset($_POST["login"])) {
-    include "db_conn.php";
-    $email = $_POST['email'] ?? $_COOKIE['email'];
-    $password = $_POST['password'] ?? $_COOKIE['password'];
+    if (isset($_POST["login"])) {
+        include "db_conn.php";
+        $email = $_POST['email'] ?? $_COOKIE['email'];
+        $password = $_POST['password'] ?? $_COOKIE['password'];
 
-    include "validation.php";
-    if (empty($password)) {
-        $errors['password'] = "Please enter password";
-    }
+        include "validation.php";
+        if (empty($password)) {
+            $errors['password'] = "Please enter password";
+        }
 
-    if (empty($errors)) {
-        $sql = "SELECT * FROM employee WHERE email='" . $_POST['email'] . "'";
-        $result = $conn->query($sql);
-        if ($result->num_rows > 0) {
-            $row = $result->fetch_assoc();
+        if (empty($errors)) {
+            $sql = "SELECT * FROM employee WHERE email='" . $_POST['email'] . "'";
+            $result = $conn->query($sql);
+            if ($result->num_rows > 0) {
+                $row = $result->fetch_assoc();
 
-            $id = $row['id'];
+                $id = $row['id'];
 
-            $_password = $row['password'];
-            $status = $row['status'];
+                $_password = $row['password'];
+                $status = $row['status'];
 
-            if (password_verify($password, $_password)) {
+                if (password_verify($password, $_password)) {
 
-                // remove remembered password
-                setcookie($password, '', time() - 1000);
-                setcookie($password, '', time() - 1000, '/');
+                    // remove remembered password
+                    setcookie($password, '', time() - 1000);
+                    setcookie($password, '', time() - 1000, '/');
 
-                if ($row['status'] == 0) {
-                    header('Location:login.php?status=email-verify');
-                    die();
+                    if ($row['status'] == 0) {
+                        header('Location:login.php?status=email-verify');
+                        die();
+                    } else {
+
+                        // setcookie('total', $total, time() + 60 * 60 * 24 * 1, '/');
+                        setcookie('login', $id, time() + 60 * 60 * 24 * 1, '/');
+                        setcookie('name', $row['username'], time() + 60 * 60 * 24 * 1, '/');
+                        setcookie('email', $row['email'], time() + 60 * 60 * 24 * 1, '/');
+                        setcookie('gender', $row['gender'], time() + 60 * 60 * 24 * 1, '/');
+                        setcookie('image', $row['image'], time() + 60 * 60 * 24 * 1, '/');
+                        setcookie('signedin', 'OK', time() + 100, '/');
+                        header('Location:index.php');
+                        die();
+                    }
                 } else {
-
-                    // setcookie('total', $total, time() + 60 * 60 * 24 * 1, '/');
-                    setcookie('login', $id, time() + 60 * 60 * 24 * 1, '/');
-                    setcookie('name', $row['username'], time() + 60 * 60 * 24 * 1, '/');
-                    setcookie('email', $row['email'], time() + 60 * 60 * 24 * 1, '/');
-                    setcookie('gender', $row['gender'], time() + 60 * 60 * 24 * 1, '/');
-                    setcookie('image', $row['image'], time() + 60 * 60 * 24 * 1, '/');
-                    setcookie('signedin', 'OK', time() + 100, '/');
-                    header('Location:index.php');
-                    die();
+                    $errors['msg'] = "Incorrect password";
                 }
             } else {
-                $errors['msg'] = "Incorrect password";
+                $errors['msg'] = "Account does not exist";
             }
-        } else {
-            $errors['msg'] = "Account does not exist";
         }
     }
-}
-?>
+    ?>
     <?php if ($_COOKIE['signup'] == 'OK') {
 
-// show generic toast //
-    setcookie('signup', '', time() - 60, '/');
+        // show generic toast //
+        setcookie('signup', '', time() - 60, '/');
     ?>
     <div class="my-toast">
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <div class="alert alert-success alert-dismissible toast-animation" role="alert">
             Email sent, please click on link to verify
             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
             </button>
         </div>
     </div>
-    <?php } else if ($_GET['status'] == 'email-verify') {?>
+    <?php } else if ($_GET['status'] == 'email-verify') { ?>
     <div class="my-toast">
-        <div class="alert alert-info alert-dismissible fade show" role="alert">
+        <div class="alert alert-info alert-dismissible toast-animation" role="alert">
             Please verify your email first
             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
             </button>
         </div>
     </div>
-    <?php } else if ($_GET['status'] == 'verified') {?>
+    <?php } else if ($_GET['status'] == 'verified') { ?>
     <div class="my-toast">
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <div class="alert alert-success alert-dismissible toast-animation" role="alert">
             Congratulations! Your email has been verified.
             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
             </button>
         </div>
     </div>
-    <?php } else if ($_GET['status'] == 'password-reset-success') {?>
+    <?php } else if ($_GET['status'] == 'password-reset-success') { ?>
     <div class="my-toast">
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <div class="alert alert-success alert-dismissible toast-animation" role="alert">
             Congratulations! Your password has been reset. Login with New Password
             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
             </button>
         </div>
     </div>
-    <?php }?>
+    <?php } ?>
     <div class="global-container">
         <div class="card login-form">
             <div class="card-body">
                 <h3 class="card-title text-center">Log in</h3>
                 <div class="card-text">
-                    <?php if (!empty($errors['msg'])) {?>
+                    <?php if (!empty($errors['msg'])) { ?>
                     <div class="alert alert-danger alert-dismissible fade show" role="alert">
                         <?php
-echo $errors['msg'];
-} ?>
+                        echo $errors['msg'];
+                    } ?>
                     </div>
                     <form method="POST" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
                         <div class="form-group">
                             <label for="exampleInputEmail1">Email address</label>
                             <input name="email" type="email" class="form-control form-control-sm"
-                                id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Email" value="<?php if (isset($_COOKIE["email"])) {
-    echo $_COOKIE["email"];
-}?>" ">
+                                id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Email"
+                                value="<?php if (isset($_COOKIE["email"])) {
+                                                                                                                                                                                            echo $_COOKIE["email"];
+                                                                                                                                                                                        } ?>" ">
                             <span class=" text-danger"><?php echo $errors['email']; ?></span>
                         </div>
                         <div class="form-group">
@@ -235,7 +236,7 @@ echo $errors['msg'];
             </div>
         </div>
     </div>
-    <?php }?>
+    <?php } ?>
 
     <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
         integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous">
@@ -264,7 +265,7 @@ echo $errors['msg'];
         modalButton.click();
     });
     </script>
-    <?php }?>
+    <?php } ?>
 
 </body>
 

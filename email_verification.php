@@ -8,6 +8,7 @@
     <!-- CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
         integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link rel="stylesheet" href="style.css">
     <style>
     .my-toast {
         position: fixed;
@@ -58,7 +59,7 @@ if ($_GET['key'] && $_GET['token']) {
 }
 ?>
     <div class="my-toast">
-        <div class="<?php echo $class_ . 'alert-dismissible fade show'; ?>" role="alert">
+        <div class="<?php echo $class_ . 'alert-dismissible toast-animation'; ?>" role="alert">
             <?php echo $msg; ?>
             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true">&times;</span>

@@ -23,25 +23,22 @@ if (empty($_COOKIE['login']) || $_COOKIE['login'] == '') {
     </style>
 </head>
 
-<body>
+<body class="bg-dark">
     <?php
-include "db_conn.php";
-// populate values from db
-if (isset($_COOKIE["login"])) {
+    include "db_conn.php";
+    // populate values from db
+    if (isset($_COOKIE["login"])) {
 
-    $sql = "SELECT * FROM employee WHERE id=" . $_COOKIE['login'];
-    print_r($sql);
-    $result = $conn->query($sql);
-    if ($result->num_rows > 0) {
-        $row = $result->fetch_assoc();
-        // $id = $row['id'];
-        // $_POST["id"] = $row['id'];
-        $username = $row['username'];
-        $email = $row['email'];
-        $gender = $row['gender'];
-        $image = $row['image'];
+        $sql = "SELECT * FROM employee WHERE id=" . $_COOKIE['login'];
+        $result = $conn->query($sql);
+        if ($result->num_rows > 0) {
+            $row = $result->fetch_assoc();
+            $username = $row['username'];
+            $email = $row['email'];
+            $gender = $row['gender'];
+            $image = $row['image'];
 
-        ?>
+    ?>
     <section class="h-100">
         <div class="container py-5 h-100">
             <div class="row d-flex justify-content-center align-items-center h-100">
@@ -50,14 +47,14 @@ if (isset($_COOKIE["login"])) {
                         <div class="rounded-top text-white d-flex flex-row"
                             style="background-color: #000; height:200px;">
                             <div class="ml-4 mt-5 d-flex flex-column" style="width: 150px;">
-                                <?php if (!empty($image)) {?>
+                                <?php if (!empty($image)) { ?>
                                 <img src="<?php echo "./uploads/" . $image ?>" alt="User image"
                                     class="img-fluid img-thumbnail mt-4 mb-2" style="width: 150px; z-index: 1">
 
-                                <?php } else {?>
+                                <?php } else { ?>
                                 <img src="./uploads/default_user.jpg" alt="Generic placeholder image"
                                     class="img-fluid img-thumbnail mt-4 mb-2" style="width: 150px; z-index: 1">
-                                <?php }?>
+                                <?php } ?>
                                 <a href="<?php echo 'edit.php?id=' . $row['id'] ?>" role="button" type="button"
                                     class="btn btn-outline-dark" data-mdb-ripple-color="dark" style="z-index: 1;">
                                     Edit profile
@@ -93,15 +90,14 @@ if (isset($_COOKIE["login"])) {
         </div>
     </section>
     <?php } else {
+            header("Location: error.php?msg='Account does not exist'");
+            die();
+        }
+    } else {
+
         header("Location: error.php?msg='Account does not exist'");
         die();
-    }
-} else {
-
-    header("Location: error.php?msg='Account does not exist'");
-    die();
-
-}?>
+    } ?>
 
 
 
