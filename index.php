@@ -180,7 +180,6 @@ if ($_GET['action'] === 'delete' && isset($_GET['id'])) {
                                 <a href="" class="dropdown-item" data-toggle="modal"
                                     data-target="#modalChangePassword">Change Password</a>
                                 <a class="dropdown-item" href="logout.php">Logout</a>
-                                <a class="dropdown-item" href="logout.php">Crop Image</a>
                             </div>
                         </div>
 
@@ -244,10 +243,9 @@ if ($result->num_rows > 0) {
                     <td class="text-center"><?php echo ucfirst($data['gender']); ?> </td>
                     <td class="text-center">
                         <?php if (!empty($data['image'])) {?>
-                        <button type="button" class="" data-toggle="modal"
-                            data-target="#myPreviewModal<?=$data['id']?>">
-                            <img src="<?php echo "./thumbnails/" . $data['image'] ?>" alt="Image"
-                                style="width: 40px; height: 30px;"></button>
+                        <a type="button" class="" data-toggle="modal" data-target="#myPreviewModal<?=$data['id']?>">
+                            <img class="rounded-circle" src="<?php echo "./thumbnails/" . $data['image'] ?>" alt="Image"
+                                style="width: 40px; height: 30px;"></a>
                         <?php } else {?>
                         -
                         <?php }?>

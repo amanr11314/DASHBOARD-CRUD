@@ -38,6 +38,8 @@ include "db_conn.php";
 // populate values from db
 if (isset($_GET["id"])) {
 
+    $_POST['type'] = $_GET['id'] == $_COOKIE['login'] ? 'admin' : 'intern';
+
     // employee
     if ($_GET['id'] == $_COOKIE['login']) {
         $sql = "SELECT * FROM employee WHERE id=" . $_GET['id'];
@@ -76,14 +78,19 @@ if (isset($_POST["submit"])) {
     $email = $_POST["email"];
     $username = $_POST["username"];
     $gender = $_POST["gender"];
-    $self = $_POST['isSelf'];
+    $img_name = $_POST['img_name'];
+
+    echo "namee = " . $img_name;
 
     include "validation.php";
 
     if (empty($errors)) {
         $name = $_FILES["files"]["name"];
         $tmp_name = $_FILES['files']['tmp_name'];
-        if (!empty($tmp_name)) {
+
+        // old for without cropper
+        // if (!empty($tmp_name)) {
+        if (false) {
             $uploadFolder = './uploads';
             $extension = pathinfo($name, PATHINFO_EXTENSION);
             $filename = $username . "_" . $email . "." . $extension;
@@ -109,11 +116,34 @@ if (isset($_POST["submit"])) {
 
                 if ($conn->query($sql)) {
                     header('Location:index.php');
+                    die();
                 }
                 echo 'successfully save : )';
             } else {
                 echo 'Error uploading';
             }
+
+        } else if (!empty($img_name)) {
+            echo "inside if";
+// Insert into DB
+            try {
+                // for employees
+                if ($_POST['id'] == $_COOKIE['login']) {
+                    $sql = "UPDATE employee SET username='$username',email='$email',gender='$gender',image='$img_name' WHERE id='$id'";
+                    setcookie('image', $img_name, time() + 60 * 60 * 24 * 1, '/');
+                } else {
+                    // for interns
+                    $sql = "UPDATE interns SET username='$username',email='$email',gender='$gender',image='$img_name' WHERE id='$id'";
+                }
+            } catch (Exception $ex) {
+                echo "<br>" . $ex->getMessage();
+            }
+
+            if ($conn->query($sql)) {
+                header('Location:index.php');
+                die();
+            }
+            echo 'successfully save : )';
         } else {
             if ($_POST['id'] == $_COOKIE['login']) {
 
@@ -123,9 +153,11 @@ if (isset($_POST["submit"])) {
             }
             $status = $conn->query($sql);
             echo "<br>" . $sql;
+            echo "inside else";
             if ($status) {
                 echo "<br>success";
                 header("Location: index.php");
+                die();
             } else {
                 echo "<br>something went wrong";
             }
@@ -198,8 +230,9 @@ if (isset($_POST["submit"])) {
                         <?php }?>
                         <div class="col-sm-8">
                             <input accept="image/*" id="cover_image" name='files' type="file">
-                            <!-- <label class="custom-file-label" for="inputGroupFile02" -->
-                            <!-- aria-describedby="inputGroupFileAddon02">Update Image</label> -->
+                            <input id="imageName" type="text" hidden name="img_name" value="">
+                            <input id="userType" hidden type="text" name="type" value=<?php echo $_POST['type']; ?>>
+
                         </div>
                     </div>
                 </div>
@@ -259,25 +292,7 @@ if (isset($_POST["submit"])) {
     </script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/croppie/2.6.5/croppie.js"></script>
-    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
     <script>
-    var getUrlParameter = function getUrlParameter(sParam) {
-        var sPageURL = window.location.search.substring(1),
-            sURLVariables = sPageURL.split('&'),
-            sParameterName,
-            i;
-
-        for (i = 0; i < sURLVariables.length; i++) {
-            sParameterName = sURLVariables[i].split('=');
-
-            if (sParameterName[0] === sParam) {
-                return sParameterName[1] === undefined ? true : decodeURIComponent(sParameterName[1]);
-            }
-        }
-        return false;
-    };
-
-
     /// Initializing croppie in my image_demo div
     var image_crop = $("#image_demo").croppie({
         enableExif: true,
@@ -285,7 +300,7 @@ if (isset($_POST["submit"])) {
         viewport: {
             width: 200,
             height: 200,
-            type: "circle",
+            type: "square",
         },
         boundary: {
             width: 300,
@@ -315,18 +330,22 @@ if (isset($_POST["submit"])) {
             })
             .then(function(img) {
                 console.log('calling ajax request');
+                const userType = $('#userType').val();
+                console.log(`userType = ${userType}`);
                 $.ajax({
                     url: "croppie2.php",
                     type: "POST",
                     data: {
                         image: img,
-                        id: getUrlParameter('id')
+                        edit: true,
+                        userType
                     },
                     success: function(data) {
                         console.log(data);
                         // new cropped image url
                         const new_img = './uploads/' + data['image_name'];
                         $('#profileImage').attr('src', new_img);
+                        $('#imageName').val(data['image_name']);
                     },
                     error: function(xhr, status, error) {
                         // there was an error

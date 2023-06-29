@@ -1,4 +1,5 @@
 <?php
+
 use PHPMailer\PHPMailer\Exception;
 use PHPMailer\PHPMailer\PHPMailer;
 // Start the session
@@ -16,8 +17,11 @@ include "db_conn.php";
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
-        integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+        integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous"> -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+        integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/croppie/2.6.5/croppie.css" />
     <title>SignUp</title>
     <style>
     .action-btn {
@@ -87,6 +91,7 @@ if (isset($_POST["submit"])) {
     $gender = $_POST['gender'];
     $password1 = $_POST['password1'];
     $password2 = $_POST['password2'];
+    $img_name = $_POST['img_name'];
 
     include "validation.php";
 
@@ -114,78 +119,64 @@ if (isset($_POST["submit"])) {
                 $testuser = $_POST['username'];
                 $link = "<a href=\'" . $redirect_url . "\'>Click and Verify Email</a>";
 
-                if (!empty($tmp_name)) {
-                    $uploadFolder = './uploads';
-                    $extension = pathinfo($name, PATHINFO_EXTENSION);
-                    $filename = $username . "_" . $email . "." . $extension;
-                    $FileDest = $uploadFolder . "/" . $filename;
+                if (!empty($img_name)) {
 
-                    if ($name && $_FILES['files']['size'] == 0) {
-                        $errors['msg'] = 'File size is too big';
-                        exit();
+                    // Insert into DB
+                    $sql = "INSERT INTO employee (username, email, gender, image, password, status, email_verification_link) VALUES ('$testuser','$email','$gender', '$img_name', '$_password', $status, '$token')";
+
+                    try {
+                        $conn->query($sql);
+                    } catch (Exception $ex) {
+                        print_r($sql);
+                        print_r($ex->getMessage());
                     }
+                    // include "send_email.php";
 
-                    if (move_uploaded_file($tmp_name, $FileDest)) {
+                    // $subject_ = 'Email Verification';
+                    $body_ = "<a href =" . $redirect_url . ">www.example.com</a>";
 
-                        // Insert into DB
-                        $sql = "INSERT INTO employee (username, email, gender, image, password, status, email_verification_link) VALUES ('$testuser','$email','$gender', '$filename', '$_password', $status, '$token')";
+                    /** Send mail */
 
-                        try {
-                            $conn->query($sql);
-                        } catch (Exception $ex) {
-                            print_r($sql);
-                            print_r($ex->getMessage());
+                    // Include PHPMailer classes
+
+                    require 'PHPMailer/src/Exception.php';
+                    require 'PHPMailer/src/PHPMailer.php';
+                    require 'PHPMailer/src/SMTP.php';
+                    $mail = new PHPMailer(true);
+
+                    try {
+                        // Set the SMTP configuration
+                        $mail->isSMTP();
+                        $mail->Host = 'smtp.gmail.com';
+                        $mail->Port = 587; // or the appropriate port for your SMTP server
+                        $mail->SMTPAuth = true;
+                        $mail->Username = 'testmanager.e.123@gmail.com';
+                        $mail->Password = 'iyypuilmkcbgobow';
+
+                        // Set the sender and recipient
+                        $mail->setFrom('testmanager.e.123@gmail.com', 'Test Manager');
+                        $mail->addAddress($email, $username);
+
+                        // Set the email subject and message
+                        $mail->Subject = 'Email Verification';
+
+                        $mail->isHTML(true);
+                        $mail->Body = sprintf($body_);
+
+                        // Send the email
+                        if ($mail->send()) {
+                            print_r('Email sent successfully!');
+                            setcookie('signup', 'OK', time() + 100, '/');
+                            header('Location:login.php');
+                            die();
                         }
-                        // include "send_email.php";
-
-                        // $subject_ = 'Email Verification';
-                        $body_ = "<a href =" . $redirect_url . ">www.example.com</a>";
-
-                        /** Send mail */
-
-                        // Include PHPMailer classes
-
-                        require 'PHPMailer/src/Exception.php';
-                        require 'PHPMailer/src/PHPMailer.php';
-                        require 'PHPMailer/src/SMTP.php';
-                        $mail = new PHPMailer(true);
-
-                        try {
-                            // Set the SMTP configuration
-                            $mail->isSMTP();
-                            $mail->Host = 'smtp.gmail.com';
-                            $mail->Port = 587; // or the appropriate port for your SMTP server
-                            $mail->SMTPAuth = true;
-                            $mail->Username = 'testmanager.e.123@gmail.com';
-                            $mail->Password = 'iyypuilmkcbgobow';
-
-                            // Set the sender and recipient
-                            $mail->setFrom('testmanager.e.123@gmail.com', 'Test Manager');
-                            $mail->addAddress($email, $username);
-
-                            // Set the email subject and message
-                            $mail->Subject = 'Email Verification';
-
-                            $mail->isHTML(true);
-                            $mail->Body = sprintf($body_);
-
-                            // Send the email
-                            if ($mail->send()) {
-                                print_r('Email sent successfully!');
-                                setcookie('signup', 'OK', time() + 100, '/');
-                                header('Location:login.php');
-                                die();
-                            }
-                        } catch (Exception $e) {
-                            print_r($body);
-                            echo 'Failed to send email. Error: ' . $mail->ErrorInfo . $e->getMessage();
-                        }
-                        /** Send mail end */
-
-                        echo 'successfully save : )';
-                    } else {
-                        $errors['msg'] = 'Error uploading file';
+                    } catch (Exception $e) {
+                        print_r($body);
+                        echo 'Failed to send email. Error: ' . $mail->ErrorInfo . $e->getMessage();
                     }
+                    /** Send mail end */
+
+                    echo 'successfully save : )';
                 } else {
                     // Insert into DB
                     $sql = "INSERT INTO employee (username, email, gender, password, status, email_verification_link) VALUES ('$testuser','$email','$gender', '$_password', $status, '$token')";
@@ -331,10 +322,16 @@ echo $errors['msg'];
                             </fieldset>
                             <div class="form-group">
                                 <div class="input-group mb-3">
-                                    <div class="col-sm-10">
-                                        <input id="inputGroupFile01" aria-describedby="inputGroupFileAddon01"
-                                            name='files' type="file" class="custom-file-input">
-                                        <label class="custom-file-label" for="inputGroupFile01">Choose file</label>
+                                    <img id="profileImage" class="rounded-circle col-sm-2 pt-0" alt="avatar1" src="#"
+                                        alt="Image" style="width: 100px; height: 100px;">
+                                    <div class="col-sm-8">
+                                        <input accept="image/*" id="cover_image" name='files' type="file">
+                                        <input id="imageName" type="text" hidden name="img_name" value="">
+                                        <input id="userType" hidden type="text" name="type"
+                                            value=<?php echo $_POST['type']; ?>>
+                                        <!-- <input id="inputGroupFile01" aria-describedby="inputGroupFileAddon01"
+                                            name='files' type="file" class="custom-file-input"> -->
+                                        <!-- <label class="custom-file-label" for="inputGroupFile01">Choose file</label> -->
                                     </div>
                                 </div>
                             </div>
@@ -350,7 +347,34 @@ echo $errors['msg'];
                                         In</a></span>
                             </div>
                         </form>
-
+                        <!-- This is the modal -->
+                        <div class="modal" tabindex="-1" role="dialog" id="uploadimageModal">
+                            <div class="modal-dialog" role="document" style="min-width: 700px">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Modal title</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="row">
+                                            <div class="col-md-12 text-center">
+                                                <div id="image_demo"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-primary crop_image">
+                                            Crop and Save
+                                        </button>
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                                            Close
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -358,15 +382,86 @@ echo $errors['msg'];
     </div>
 
 
-    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
-        integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous">
+
+    <!-- <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+        integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"> -->
+    <script src="https://code.jquery.com/jquery-3.5.1.js"
+        integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
     </script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
         integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous">
     </script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
-        integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous">
+    <!-- <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+        integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"> </script> -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"
+        integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous">
     </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/croppie/2.6.5/croppie.js"></script>
+
+    <script>
+    /// Initializing croppie in my image_demo div
+    var image_crop = $("#image_demo").croppie({
+        enableExif: true,
+        enableOrientation: true,
+        viewport: {
+            width: 200,
+            height: 200,
+            type: "square",
+        },
+        boundary: {
+            width: 300,
+            height: 300,
+        },
+    });
+    /// catching up the cover_image change event and binding the image into my croppie. Then show the modal.
+    $("#cover_image").on("change", function() {
+        var reader = new FileReader();
+        reader.onload = function(event) {
+            image_crop.croppie("bind", {
+                url: event.target.result,
+            }).then(function() {
+                console.log("jQuery bind complete");
+            });
+        };
+        reader.readAsDataURL(this.files[0]);
+        $("#uploadimageModal").modal("show");
+    });
+
+    /// Get button click event and get the current crop image
+    $(".crop_image").on("click", function(event) {
+        image_crop
+            .croppie("result", {
+                type: "canvas",
+                size: "viewport",
+            })
+            .then(function(img) {
+                console.log('calling ajax request');
+                console.log('img = ', img);
+                $.ajax({
+                    url: "croppie2.php",
+                    type: "POST",
+                    data: {
+                        image: img,
+                    },
+                    success: function(data) {
+                        console.log(data);
+                        // new cropped image url
+                        const new_img = './uploads/' + data['image_name'];
+                        $('#profileImage').attr('src', new_img);
+                        $('#imageName').val(data['image_name']);
+                    },
+                    error: function(xhr, status, error) {
+                        // there was an error
+                        const errors = xhr.responseJSON;
+                        console.log(errors)
+                    }
+                });
+            });
+        $("#uploadimageModal").modal("hide");
+    });
+    </script>
+
 
 </body>
 
