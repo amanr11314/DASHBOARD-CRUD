@@ -73,14 +73,16 @@
 <body>
     <div class="wrapper">
         <ul>
-
-            <li class="parent">Mno >
+            <?php
+            include "db_conn.php";
+            // Display employees in table
+            $sql = "SELECT id,name from countries ORDER BY name ASC";
+            $result = $conn->query($sql);
+            if ($result->num_rows > 0) {
+                while ($data = $result->fetch_assoc()) { ?>
+            <li class="parent"><?php echo $data['name']; ?>
                 <div class="wrapper">
                     <ul>
-                        <li>Abc</li>
-                        <li>Def</li>
-                        <li>Ghi</li>
-                        <li>Jkl</li>
                         <li class="parent">Mno >
                             <div class="wrapper">
                                 <ul>
@@ -103,6 +105,10 @@
                     </ul>
                 </div>
             </li>
+            <?php }
+            }
+            ?>
+
 
         </ul>
     </div>
