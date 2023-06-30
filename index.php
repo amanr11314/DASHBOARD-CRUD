@@ -211,6 +211,13 @@ if ($_GET['action'] === 'delete' && isset($_GET['id'])) {
                     <th class="text-center" scope="col"><a class="mr-3 badge badge-secondary action-btn"
                             href="<?php echo "index.php?sortColumn=gender&sortOrder=" . getSortOrder() * -1; ?>">Gender</a>
                     </th>
+                    <th class="text-center" scope="col"><a class="mr-3 badge badge-secondary action-btn"
+                            href="<?php echo "index.php?sortColumn=joining_date&sortOrder=" . getSortOrder() * -1; ?>">Joining
+                            Date</a>
+                    </th>
+                    <th class=" text-center" scope="col"><a class="mr-3 badge badge-secondary action-btn"
+                            href="<?php echo "index.php?sortColumn=Address&sortOrder=" . getSortOrder() * -1; ?>">Address</a>
+                    </th>
                     <th class="text-center" scope="col">Image</th>
                     <th class="text-center" scope="col" colspan="2">Action</th>
                 </tr>
@@ -243,6 +250,8 @@ if ($_GET['action'] === 'delete' && isset($_GET['id'])) {
                     <td class="text-center"><?php echo $data['username']; ?> </td>
                     <td class="text-center"><?php echo $data['email']; ?> </td>
                     <td class="text-center"><?php echo ucfirst($data['gender']); ?> </td>
+                    <td class="text-center"><?php echo $data['joining_date'] ?? '-'  ?> </td>
+                    <td class="text-center"><?php echo $data['Address'] ?? '-'  ?> </td>
                     <td class="text-center">
                         <?php if (!empty($data['image'])) { ?>
                         <a type="button" class="" data-toggle="modal" data-target="#myPreviewModal<?= $data['id'] ?>">
