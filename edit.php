@@ -16,7 +16,8 @@ include "db_conn.php";
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
         integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous"> -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+        integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/croppie/2.6.5/croppie.css" />
     <title>Edit User</title>
 
@@ -24,72 +25,73 @@ include "db_conn.php";
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/solid.min.css" rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/svg-with-js.min.css" rel="stylesheet" />
 
+
     <style>
-        .action-btn {
-            font-size: 1em;
-        }
+    .action-btn {
+        font-size: 1em;
+    }
 
-        .form-group.required .control-label:after {
-            content: " *";
-            color: red;
-        }
+    .form-group.required .control-label:after {
+        content: " *";
+        color: red;
+    }
 
-        /* hover effect css */
-        .profilepic {
-            position: relative;
-            width: 125px;
-            height: 125px;
-            border-radius: 50%;
-            overflow: hidden;
-            background-color: #111;
-        }
+    /* hover effect css */
+    .profilepic {
+        position: relative;
+        width: 125px;
+        height: 125px;
+        border-radius: 50%;
+        overflow: hidden;
+        background-color: #111;
+    }
 
-        .profilepic:hover .profilepic__content {
-            opacity: 1;
-        }
+    .profilepic:hover .profilepic__content {
+        opacity: 1;
+    }
 
-        .profilepic:hover .profilepic__image {
-            opacity: .5;
-        }
+    .profilepic:hover .profilepic__image {
+        opacity: .5;
+    }
 
-        .profilepic__image {
-            object-fit: cover;
-            opacity: 1;
-            transition: opacity .2s ease-in-out;
-        }
+    .profilepic__image {
+        object-fit: cover;
+        opacity: 1;
+        transition: opacity .2s ease-in-out;
+    }
 
-        .profilepic__content {
-            position: absolute;
-            top: 0;
-            right: 0;
-            bottom: 0;
-            left: 0;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            color: white;
-            opacity: 0;
-            transition: opacity .2s ease-in-out;
-        }
+    .profilepic__content {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        color: white;
+        opacity: 0;
+        transition: opacity .2s ease-in-out;
+    }
 
-        .profilepic__icon {
-            color: white;
-            padding-bottom: 8px;
-        }
+    .profilepic__icon {
+        color: white;
+        padding-bottom: 8px;
+    }
 
-        .fas {
-            font-size: 20px;
-        }
+    .fas {
+        font-size: 20px;
+    }
 
-        .profilepic__text {
-            text-transform: uppercase;
-            font-size: 12px;
-            width: 50%;
-            text-align: center;
-        }
+    .profilepic__text {
+        text-transform: uppercase;
+        font-size: 12px;
+        width: 50%;
+        text-align: center;
+    }
 
-        /* hover effect css */
+    /* hover effect css */
     </style>
 </head>
 
@@ -226,84 +228,117 @@ include "db_conn.php";
     ?>
     <div class="container mt-4">
 
-        <form method="POST" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" enctype="multipart/form-data">
+        <form method="POST" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>"
+            enctype="multipart/form-data">
             <form method="POST" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
-                <label for="id" class="text-danger col-form-label">* Required field</label>
-                <input hidden type="text" name="id" value=<?php echo $_POST['id']; ?>>
-                <div class="form-group required row">
-                    <label for="inputName" class="control-label col-sm-2 col-form-label">Name</label>
 
-                    <div class="col-sm-10">
-                        <input type="text" class="form-control" id="inputName" name="username" placeholder="User name" value="<?php echo $_POST['username'] ?>">
-                        <span class="text-danger"><?php echo $errors['username']; ?></span>
-                    </div>
-                </div>
-                <div class="form-group required row">
-                    <label for="inputEmail3" class="control-label col-sm-2 col-form-label">Email</label>
-                    <div class="col-sm-10">
-                        <input type="email" class="form-control" id="inputEmail3" name="email" placeholder="Email" value="<?php echo $_POST['email'] ?>">
-                        <span class="text-danger"><?php echo $errors['email']; ?></span>
-                    </div>
-                </div>
-                <fieldset class="form-group required">
-                    <div class="row ">
-                        <legend class="control-label col-form-label col-sm-2 pt-0">Gender</legend>
-                        <div class="col-sm-10">
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="gender" id="gridRadios1" value="male" <?php if (isset($_POST['gender']) && $_POST['gender'] == "male") {
-                                                                                                                                echo "checked";
-                                                                                                                            }
-                                                                                                                            ?>>
-                                <label class="form-check-label" for="gridRadios1">
-                                    Male
-                                </label>
+                <!-- two columns 1> Profie Image 2> Input fields -->
+                <div class="row align-items-center">
+                    <div class="col-sm-2">
+
+                        <div class="form-group row align-items-center">
+                            <div class="input-group mb-3 align-items-center">
+                                <?php if (!(empty($_POST['image']))) {
+                                ?>
+                                <!-- display hover effect if already and image -->
+                                <div id="profilePicContainer" class="profilepic">
+                                    <img id="demoProfilePicContainer" class="profilepic__image"
+                                        src="<?php echo "./uploads/" . $_POST['image'] ?>" width="150" height="150"
+                                        alt="Profibild" />
+                                    <div class="profilepic__content">
+                                        <span class="profilepic__icon"><i class="fas fa-camera"></i></span>
+                                        <span class="profilepic__text">Edit Photo</span>
+                                    </div>
+                                </div>
+
+                                <!-- make file input as hidden in this case -->
+                                <input accept="image/*" style="display: none;" id="cover_image" name='files'
+                                    type="file">
+
+                                <?php } else { ?>
+                                <img id="profileImage" class="rounded-circle col-sm-2 pt-0" alt="avatar1" src="#"
+                                    alt="Image" style="width: 100px; height: 100px;">
+                                <div class="col-sm-8">
+                                    <input accept="image/*" style="display: none;" id="cover_image" name='files'
+                                        type="file">
+                                </div>
+                                <?php } ?>
+
+                                <input id="imageName" type="text" hidden name="img_name" value="">
+                                <input id="userType" hidden type="text" name="type" value=<?php echo $_POST['type']; ?>>
+
                             </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="gender" id="gridRadios2" value="female" <?php if (isset($_POST['gender']) && $_POST['gender'] == "female") {
-                                                                                                                                echo "checked";
-                                                                                                                            }
-                                                                                                                            ?>>
-                                <label class="form-check-label" for="gridRadios2">
-                                    Female
-                                </label>
-                            </div>
-                            <span class="text-danger"><?php echo $errors['gender']; ?></span>
                         </div>
                     </div>
-                </fieldset>
+                    <div class="col-sm-10">
 
-                <div class="form-group row align-items-center">
-                    <div class="input-group mb-3 align-items-center">
-                        <?php if (!(empty($_POST['image']))) {
-                        ?>
-                            <img id="profileImage" class="rounded-circle col-sm-2 pt-0" alt="avatar1" src="<?php echo "./uploads/" . $_POST['image'] ?>" alt="Image" style="width: 100px; height: 100px;">
-                        <?php } else { ?>
-                            <img id="profileImage" class="rounded-circle col-sm-2 pt-0" alt="avatar1" src="#" alt="Image" style="width: 100px; height: 100px;">
-                        <?php } ?>
-                        <div class="col-sm-8">
-                            <input accept="image/*" style="display: none;" id="cover_image" name='files' type="file">
-                            <input id="imageName" type="text" hidden name="img_name" value="">
-                            <input id="userType" hidden type="text" name="type" value=<?php echo $_POST['type']; ?>>
+                        <label for="id" class="text-danger col-form-label">* Required field</label>
+                        <input hidden type="text" name="id" value=<?php echo $_POST['id']; ?>>
+                        <div class="form-group required row">
+                            <label for="inputName" class="control-label col-sm-2 col-form-label">Name</label>
 
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="inputName" name="username"
+                                    placeholder="User name" value="<?php echo $_POST['username'] ?>">
+                                <span class="text-danger"><?php echo $errors['username']; ?></span>
+                            </div>
+                        </div>
+                        <div class="form-group required row">
+                            <label for="inputEmail3" class="control-label col-sm-2 col-form-label">Email</label>
+                            <div class="col-sm-10">
+                                <input type="email" class="form-control" id="inputEmail3" name="email"
+                                    placeholder="Email" value="<?php echo $_POST['email'] ?>">
+                                <span class="text-danger"><?php echo $errors['email']; ?></span>
+                            </div>
+                        </div>
+                        <fieldset class="form-group required">
+                            <div class="row ">
+                                <legend class="control-label col-form-label col-sm-2 pt-0">Gender</legend>
+                                <div class="col-sm-10">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="gender" id="gridRadios1"
+                                            value="male"
+                                            <?php if (isset($_POST['gender']) && $_POST['gender'] == "male") {
+                                                                                                                                        echo "checked";
+                                                                                                                                    }
+                                                                                                                                    ?>>
+                                        <label class="form-check-label" for="gridRadios1">
+                                            Male
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="gender" id="gridRadios2"
+                                            value="female"
+                                            <?php if (isset($_POST['gender']) && $_POST['gender'] == "female") {
+                                                                                                                                        echo "checked";
+                                                                                                                                    }
+                                                                                                                                    ?>>
+                                        <label class="form-check-label" for="gridRadios2">
+                                            Female
+                                        </label>
+                                    </div>
+                                    <span class="text-danger"><?php echo $errors['gender']; ?></span>
+                                </div>
+                            </div>
+                        </fieldset>
+                        <div class="form-group row">
+                            <div class="col-sm-10">
+                                <button id="editFormBtn" type="submit" name="submit" class="btn btn-primary"
+                                    style="width: 100px;">
+                                    Update
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div id="profilePicContainer" class="profilepic">
-                    <img id="demoProfilePicContainer" class="profilepic__image" src="https://images.unsplash.com/photo-1510227272981-87123e259b17?ixlib=rb-0.3.5&q=80&fm=jpg&crop=faces&fit=crop&h=200&w=200&s=3759e09a5b9fbe53088b23c615b6312e" width="150" height="150" alt="Profibild" />
-                    <div class="profilepic__content">
-                        <span class="profilepic__icon"><i class="fas fa-camera"></i></span>
-                        <span class="profilepic__text">Edit Profile</span>
-                    </div>
-                </div>
 
-                <div class="form-group row">
-                    <div class="col-sm-10">
-                        <button type="submit" name="submit" class="btn btn-primary" style="width: 100px;">
-                            Update
-                        </button>
-                    </div>
-                </div>
+
+
+
+
+
+
             </form>
 
     </div>
@@ -341,84 +376,134 @@ include "db_conn.php";
 
 
 
-    <script src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.js"
+        integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+        integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous">
     </script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous">
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"
+        integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous">
     </script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/croppie/2.6.5/croppie.js"></script>
     <script>
-        // on hover show camera and on click open image picker dialog
-        $("#profilePicContainer").on('click', function(event) {
-            $('#cover_image').trigger('click');
-        });
+    // on hover show camera and on click open image picker dialog
+    $("#profilePicContainer").on('click', function(event) {
+        $('#cover_image').trigger('click');
+    });
 
-        /// Initializing croppie in my image_demo div
-        var image_crop = $("#image_demo").croppie({
-            enableExif: true,
-            enableOrientation: true,
-            viewport: {
-                width: 200,
-                height: 200,
-                type: "square",
-            },
-            boundary: {
-                width: 300,
-                height: 300,
-            },
-        });
-        /// catching up the cover_image change event and binding the image into my croppie. Then show the modal.
-        $("#cover_image").on("change", function() {
-            var reader = new FileReader();
-            reader.onload = function(event) {
-                image_crop.croppie("bind", {
-                    url: event.target.result,
-                }).then(function() {
-                    console.log("jQuery bind complete");
-                });
-            };
-            reader.readAsDataURL(this.files[0]);
-            $("#uploadimageModal").modal("show");
-        });
+    /// Initializing croppie in my image_demo div
+    var image_crop = $("#image_demo").croppie({
+        enableExif: true,
+        enableOrientation: true,
+        viewport: {
+            width: 200,
+            height: 200,
+            type: "square",
+        },
+        boundary: {
+            width: 300,
+            height: 300,
+        },
+    });
+    /// catching up the cover_image change event and binding the image into my croppie. Then show the modal.
+    $("#cover_image").on("change", function() {
+        var reader = new FileReader();
+        reader.onload = function(event) {
+            image_crop.croppie("bind", {
+                url: event.target.result,
+            }).then(function() {
+                console.log("jQuery bind complete");
+            });
+        };
+        reader.readAsDataURL(this.files[0]);
+        $("#uploadimageModal").modal("show");
+    });
 
-        /// Get button click event and get the current crop image
-        $(".crop_image").on("click", function(event) {
-            image_crop
-                .croppie("result", {
-                    type: "canvas",
-                    size: "viewport",
-                })
-                .then(function(img) {
-                    console.log('calling ajax request');
-                    const userType = $('#userType').val();
-                    console.log(`userType = ${userType}`);
-                    $.ajax({
-                        url: "croppie2.php",
-                        type: "POST",
-                        data: {
-                            image: img,
-                            edit: true,
-                            userType
-                        },
-                        success: function(data) {
-                            console.log(data);
-                            // new cropped image url
-                            const new_img = './uploads/' + data['image_name'];
-                            $('#profileImage').attr('src', new_img);
-                            $('#demoProfilePicContainer').attr('src', new_img);
-                            $('#imageName').val(data['image_name']);
-                        },
-                        error: function(xhr, status, error) {
-                            // there was an error
-                            const errors = xhr.responseJSON;
-                            console.log(errors)
-                        }
-                    });
+    /// Get button click event and get the current crop image
+    $(".crop_image").on("click", function(event) {
+        image_crop
+            .croppie("result", {
+                type: "canvas",
+                size: "viewport",
+            })
+            .then(function(img) {
+                console.log('calling ajax request');
+                const userType = $('#userType').val();
+                console.log(`userType = ${userType}`);
+                $.ajax({
+                    url: "croppie2.php",
+                    type: "POST",
+                    data: {
+                        image: img,
+                        edit: true,
+                        userType
+                    },
+                    success: function(data) {
+                        console.log(data);
+                        // new cropped image url
+                        const new_img = './uploads/' + data['image_name'];
+                        $('#profileImage').attr('src', new_img);
+                        $('#demoProfilePicContainer').attr('src', new_img);
+                        $('#imageName').val(data['image_name']);
+                    },
+                    error: function(xhr, status, error) {
+                        // there was an error
+                        const errors = xhr.responseJSON;
+                        console.log(errors)
+                    }
                 });
-            $("#uploadimageModal").modal("hide");
-        });
+            });
+        $("#uploadimageModal").modal("hide");
+    });
+
+
+    $("input[name='username']").blur(function(event) {
+        console.log('called blur event username')
+
+        var $nameErrorSpan = $(this).siblings('span')
+        var hasNumber = /\d/;
+
+        var n = $(this).val()
+        if (n.trim().length === 0) {
+            $nameErrorSpan.text('Username is required input');
+            $("#editFormBtn").addClass('disabled')
+
+        } else if (hasNumber.test(n)) {
+            $nameErrorSpan.text('Username con have only alphabets');
+            $("#editFormBtn").addClass('disabled')
+
+        } else {
+            $nameErrorSpan.text('')
+            $("#editFormBtn").removeClass('disabled')
+
+        }
+
+    })
+
+    $("input[name='email']").blur(function(event) {
+        console.log('called blur event email')
+
+        var $emailErrorSpan = $(this).siblings('span')
+
+        console.log('email=', $(this).val())
+
+
+        function validateEmail(email) {
+            var regex = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/;
+            return regex.test(email);
+        }
+
+        if (validateEmail($(this).val())) {
+            $emailErrorSpan.text('');
+            $("#editFormBtn").removeClass('disabled')
+
+        } else {
+            $emailErrorSpan.text('Please enter valid email address');
+            $("#editFormBtn").addClass('disabled')
+        }
+    })
     </script>
 
 </body>

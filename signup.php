@@ -96,7 +96,7 @@ include "db_conn.php";
         include "validation.php";
 
         if ($password1 !== $password2) {
-            $errors['password'] = "Password do not match";
+            $errors['password'] = "Passwords do not match";
         } else if (strlen($password1) < 6) {
             $errors['password'] = "Password should be minimum of 6 characters";
         } else if (strlen($password1) >= 6) {
@@ -127,7 +127,6 @@ include "db_conn.php";
                         try {
                             $conn->query($sql);
                         } catch (Exception $ex) {
-                            print_r($sql);
                             print_r($ex->getMessage());
                         }
                         // include "send_email.php";
@@ -165,13 +164,11 @@ include "db_conn.php";
 
                             // Send the email
                             if ($mail->send()) {
-                                print_r('Email sent successfully!');
                                 setcookie('signup', 'OK', time() + 100, '/');
                                 header('Location:login.php');
                                 die();
                             }
                         } catch (Exception $e) {
-                            print_r($body);
                             echo 'Failed to send email. Error: ' . $mail->ErrorInfo . $e->getMessage();
                         }
                         /** Send mail end */
@@ -184,7 +181,6 @@ include "db_conn.php";
                         try {
                             $conn->query($sql);
                         } catch (Exception $ex) {
-                            print_r($sql);
                             print_r($ex->getMessage());
                         }
 
@@ -220,7 +216,6 @@ include "db_conn.php";
 
                             // Send the email
                             if ($mail->send()) {
-                                print_r('Email sent successfully!');
                                 print_r($body_);
                                 setcookie('signup', 'OK', time() + 100, '/');
                                 header('Location:login.php');
@@ -324,7 +319,7 @@ include "db_conn.php";
                             </fieldset>
                             <div class="form-group row align-items-center">
                                 <div class="input-group mb-3 align-items-center">
-                                    <legend class="control-label col-form-label col-sm-2 pt-0">Image</legend>
+                                    <legend class="control-label col-form-label col-sm-2 pt-0">Profile Image</legend>
 
                                     <div class="col-sm-10">
                                         <input accept="image/*" class="col-sm-8 pl-0" id="cover_image" name='files'
@@ -344,7 +339,8 @@ include "db_conn.php";
                             </div>
                             <div class="d-flex flex-row justify-content-center">
                                 <div class="col-sm-10 text-center">
-                                    <button type="submit" name="submit" class="btn btn-primary" style="width: 100px;">
+                                    <button id="btnSignUp" type="submit" name="submit" class="btn btn-primary"
+                                        style="width: 100px;">
                                         Sign Up
                                     </button>
                                 </div>
@@ -471,6 +467,133 @@ include "db_conn.php";
             });
         $("#uploadimageModal").modal("hide");
     });
+
+    $("input[name='username']").blur(function(event) {
+        console.log('called blur event username')
+
+        var $nameErrorSpan = $(this).siblings('span')
+        var hasNumber = /\d/;
+
+        var n = $(this).val()
+        if (n.trim().length === 0) {
+            $nameErrorSpan.text('Username is required input');
+            $("#btnSignUp").addClass('disabled')
+
+        } else if (hasNumber.test(n)) {
+            $nameErrorSpan.text('Username con have only alphabets');
+            $("#btnSignUp").addClass('disabled')
+
+        } else {
+            $nameErrorSpan.text('')
+            $("#btnSignUp").removeClass('disabled')
+
+        }
+
+    })
+
+    $("input[name='email']").blur(function(event) {
+        console.log('called blur event email')
+
+        var $emailErrorSpan = $(this).siblings('span')
+
+        console.log('email=', $(this).val())
+
+
+        function validateEmail(email) {
+            var regex = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/;
+            return regex.test(email);
+        }
+
+        if (validateEmail($(this).val())) {
+            $emailErrorSpan.text('');
+            $("#btnSignUp").removeClass('disabled')
+
+        } else {
+            $emailErrorSpan.text('Please enter valid email address');
+            $("#btnSignUp").addClass('disabled')
+        }
+    })
+
+
+    function validatePassword(password) {
+        // Check minimum length
+        if (password.length < 6) {
+            return "Password should be minimum of 6 characters";
+        }
+
+        // Check for at least one uppercase letter
+        if (!/[A-Z]/.test(password)) {
+            return "Password must contain atleast one uppercase, special chracters and numbers";
+        }
+
+        // Check for at least one special character
+        if (!/[!@#$%^&*]/.test(password)) {
+            return "Password must contain atleast one uppercase, special chracters and numbers";
+        }
+
+        // Check for at least one digit
+        if (!/\d/.test(password)) {
+            return "Password must contain atleast one uppercase, special chracters and numbers";
+        }
+
+        // If all criteria pass, return true
+        return true;
+    }
+
+    $('#inputPassword1', '#inputPassword2').blur(function() {
+        validator.validate()
+        var $password1ErrorSpan = $('#inputPassword1').siblings('span')
+        var $password2ErrorSpan = $('#inputPassword2').siblings('span')
+        const validP1 = validatePassword($('#inputPassword1').val())
+        const validP2 = validatePassword($('#inputPassword2').val())
+
+        if (validP1 === true && validP1 === true) {
+            // check if p1 and p2 match
+            if ($('#inputPassword1').val() === $('#inputPassword2').val()) {
+                $password1ErrorSpan.text('');
+                $password2ErrorSpan.text('');
+                $("#btnSignUp").removeClass('disabled')
+            } else {
+                const doNotMatch = "Passwords do not match";
+                $password1ErrorSpan.text(doNotMatch);
+                $password2ErrorSpan.text(doNotMatch);
+                $("#btnSignUp").addClass('disabled')
+            }
+        } else if (validP1 === true) {
+            $password1ErrorSpan.text('');
+            $password2ErrorSpan.text(validP2);
+            $("#btnSignUp").addClass('disabled')
+        } else if (validP2 === true) {
+            $password2ErrorSpan.text('')
+            $password1ErrorSpan.text(validP1)
+            $("#btnSignUp").addClass('disabled')
+        }
+
+    });
+
+
+    // $("input[name='password1']").blur(function(event) {
+    //     console.log('called blur event password1')
+
+    //     var $password1ErrorSpan = $(this).siblings('span')
+
+    //     // minimum 6 characters
+    //     // atleast one UPPERCASE
+    //     // atleast one SPECIAL CHARACTER
+    //     // atleast one DIGIT
+
+
+
+    //     const validP1 = validatePassword($(this).val())
+    //     if (validP1 === true) {
+    //         $password1ErrorSpan.text('');
+    //         $("#btnSignUp").removeClass('disabled')
+
+    //     } else {
+    //         $password1ErrorSpan.text(validP1);
+    //         $("#btnSignUp").addClass('disabled')
+    //     }
+    // })
     </script>
 
 

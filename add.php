@@ -321,7 +321,8 @@ include "db_conn.php";
 
             <div class="form-group row">
                 <div class="col-sm-10 text-center">
-                    <button type="submit" name="add-intern" class="btn btn-primary" style="width: 200px;">
+                    <button id="btnAddIntern" type="submit" name="add-intern" class="btn btn-primary"
+                        style="width: 200px;">
                         Add
                     </button>
                 </div>
@@ -353,52 +354,53 @@ include "db_conn.php";
             startDate: '-1m'
         });
     });
-    $('form').submit(function(event) {
-        if (true) {
 
-            event.preventDefault();
+    $("input[name='username']").blur(function(event) {
+        console.log('called blur event username')
 
-            // grab all reqired fields and do client side validation
-            var $name = $("input[name='username']")
-            var $nameErrorSpan = $name.siblings('span')
-            var hasNumber = /\d/;
+        var $nameErrorSpan = $(this).siblings('span')
+        var hasNumber = /\d/;
 
-            console.log('name=', $name.val())
+        var n = $(this).val()
+        if (n.trim().length === 0) {
+            $nameErrorSpan.text('Username is required input');
+            $("#btnAddIntern").addClass('disabled')
 
-            var n = $name.val()
-            if (n.trim().length === 0) {
-                $nameErrorSpan.text('Username is required input');
-            } else if (hasNumber.test(n)) {
-                $nameErrorSpan.text('Username con have only alphabets');
-            } else {
-                $nameErrorSpan.text('')
-            }
-
-            var $email = $("input[name='email']")
-            var $emailErrorSpan = $email.siblings('span')
-
-            console.log('email=', $email.val())
-
-
-            function validateEmail(email) {
-                var regex = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/;
-                return regex.test(email);
-            }
-
-            if (validateEmail($email.val())) {
-                $emailErrorSpan.text('')
-
-            } else {
-                $emailErrorSpan.text('Please enter valid email address');
-            }
-
-
-            var $gender = $("input[name='gender']").val()
+        } else if (hasNumber.test(n)) {
+            $nameErrorSpan.text('Username con have only alphabets');
+            $("#btnAddIntern").addClass('disabled')
 
         } else {
-            console.log('post method called')
+            $nameErrorSpan.text('')
+            $("#btnAddIntern").removeClass('disabled')
+
         }
-    });
+
+    })
+
+    $("input[name='email']").blur(function(event) {
+        console.log('called blur event email')
+
+        var $emailErrorSpan = $(this).siblings('span')
+
+        console.log('email=', $(this).val())
+
+
+        function validateEmail(email) {
+            var regex = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/;
+            return regex.test(email);
+        }
+
+        if (validateEmail($(this).val())) {
+            $emailErrorSpan.text('');
+            $("#btnAddIntern").removeClass('disabled')
+
+        } else {
+            $emailErrorSpan.text('Please enter valid email address');
+            $("#btnAddIntern").addClass('disabled')
+        }
+    })
+
     // select an country on click
     $('option.country-item').click(function() {
         console.log('clicked country item');
